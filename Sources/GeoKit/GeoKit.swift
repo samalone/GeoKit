@@ -29,6 +29,10 @@ public struct Coordinate: Codable {
     }
 }
 
+extension Coordinate: Equatable {
+    
+}
+
 //@Published var signal = CLLocationCoordinate2D(latitude: 41.777, longitude: -71.379)
 //@Published var windDirection: CLLocationDirection = 0
 //@Published var numberOfBoats = 10
@@ -40,17 +44,20 @@ public struct Coordinate: Codable {
 //@Published var desiredLeewardDistance: CLLocationDistance = 500
 //@Published var desiredJybeDistance: CLLocationDistance = 600
 
-struct Course: Codable {
-    var signal = Coordinate(latitude: 41.777, longitude: -71.379)
-    var windDirection: Double = 0.0
-    var numberOfBoats: Int = 10
-    var actualWindMarkLocation: Coordinate? = nil
-    var actualJybeMarkLocation: Coordinate? = nil
-    var actualLeewardMarkLocation: Coordinate? = nil
-    var actualPinLocation: Coordinate? = nil
-    var desiredWindwardDistance: Double = 500
-    var desiredLeewardDistance: Double = 500
-    var desiredJybeDistance: Double = 500
+public struct Course: Codable {
+    public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
+    public var windDirection: Double = 0.0
+    public var numberOfBoats: Int = 10
+    public var actualWindMarkLocation: Coordinate? = nil
+    public var actualJybeMarkLocation: Coordinate? = nil
+    public var actualLeewardMarkLocation: Coordinate? = nil
+    public var actualPinLocation: Coordinate? = nil
+    public var desiredWindwardDistance: Double = 500
+    public var desiredLeewardDistance: Double = 500
+    public var desiredJybeDistance: Double = 500
+    
+    public init() {
+    }
 }
 
 extension Double {
