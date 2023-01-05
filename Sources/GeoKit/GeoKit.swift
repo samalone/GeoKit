@@ -15,10 +15,10 @@ public typealias Direction = Double
 public typealias Distance = Double
 
 public struct Coordinate: Codable {
-    var latitude: Double
-    var longitude: Double
+    public var latitude: Double
+    public var longitude: Double
     
-    init(latitude: Double, longitude: Double) {
+    public init(latitude: Double, longitude: Double) {
         self.latitude = latitude
         self.longitude = longitude
     }
@@ -56,8 +56,35 @@ public struct Course: Codable {
     public var desiredLeewardDistance: Double = 500
     public var desiredJybeDistance: Double = 500
     
+    public let boatLength: Distance = (14.0 * 1.5).feetToMeters
+    
     public init() {
     }
+    
+    public var lengthOfStartLine: Distance {
+        return Double(numberOfBoats) * boatLength * 1.5
+    }
+    
+    public var desiredCenterOfStartLine: Coordinate {
+        return signal.project(bearing: windDirection - 90, distance: lengthOfStartLine / 2)
+    }
+    
+    public var desiredPinLocation: Coordinate {
+        return signal.project(bearing: windDirection - 90, distance: lengthOfStartLine)
+    }
+    
+    public var desiredJybeMarkLocation: Coordinate {
+        return desiredCenterOfStartLine.project(bearing: windDirection - 90, distance: desiredJybeDistance)
+    }
+    
+    public var desiredWindMarkLocation: Coordinate {
+        return desiredCenterOfStartLine.project(bearing: windDirection, distance: desiredWindwardDistance)
+    }
+    
+    public var desiredLeewardMarkLocation: Coordinate {
+        return desiredCenterOfStartLine.project(bearing: windDirection + 180, distance: desiredLeewardDistance)
+    }
+
 }
 
 extension Double {
@@ -72,7 +99,7 @@ let earthRadius: Double = 6372797.6
 let sunfishLength: Double = (14.0).feetToMeters
 
 extension Coordinate {
-    func bearing(to: Coordinate) -> Direction {
+    public func bearing(to: Coordinate) -> Direction {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
         
@@ -88,7 +115,7 @@ extension Coordinate {
         return (bearingInDegrees < 0) ? (bearingInDegrees + 360) : bearingInDegrees
     }
     
-    func project(bearing: Direction, distance: Distance) -> Coordinate {
+    public func project(bearing: Direction, distance: Distance) -> Coordinate {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
         let distRadians = distance / earthRadius
@@ -102,7 +129,7 @@ extension Coordinate {
         return Coordinate(latitude: lat2.radiansToDegrees, longitude: lon2.radiansToDegrees)
     }
     
-    func distance(to: Coordinate) -> Distance {
+    public func distance(to: Coordinate) -> Distance {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
         let lat2 = to.latitude.degreesToRadians
