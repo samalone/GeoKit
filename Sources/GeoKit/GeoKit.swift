@@ -47,6 +47,8 @@ extension Coordinate: Equatable {
 public struct Course: Codable {
     public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
     public var windDirection: Double = 0.0
+    public var windSpeed: Double = 0.0
+    public var windGusts: Double = 0.0
     public var numberOfBoats: Int = 10
     public var actualWindMarkLocation: Coordinate? = nil
     public var actualJybeMarkLocation: Coordinate? = nil
