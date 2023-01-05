@@ -54,9 +54,9 @@ public struct Course: Codable {
     public var actualJybeMarkLocation: Coordinate? = nil
     public var actualLeewardMarkLocation: Coordinate? = nil
     public var actualPinLocation: Coordinate? = nil
-    public var desiredWindwardDistance: Double = 500
-    public var desiredLeewardDistance: Double = 500
-    public var desiredJybeDistance: Double = 500
+    public var desiredWindwardDistance: Double = 400
+    public var desiredLeewardDistance: Double = 400
+    public var desiredJybeDistance: Double = 400
     
     public let boatLength: Distance = (14.0 * 1.5).feetToMeters
     
