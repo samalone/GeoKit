@@ -7,14 +7,15 @@
 
 import Foundation
 
-
 /// Compass direction in degrees from true north
 public typealias Direction = Double
 
 /// Distance in meters
 public typealias Distance = Double
 
-public struct Coordinate: Codable {
+public struct Coordinate: Codable, Equatable {
+    public static let earthRadius: Double = 6372797.6
+    
     public var latitude: Double
     public var longitude: Double
     
@@ -29,22 +30,7 @@ public struct Coordinate: Codable {
     }
 }
 
-extension Coordinate: Equatable {
-    
-}
-
-//@Published var signal = CLLocationCoordinate2D(latitude: 41.777, longitude: -71.379)
-//@Published var windDirection: CLLocationDirection = 0
-//@Published var numberOfBoats = 10
-//@Published var actualWindMarkLocation = CLLocationCoordinate2D(latitude: 41.777, longitude: -71.379)
-//@Published var actualJybeMarkLocation = CLLocationCoordinate2D(latitude: 41.777, longitude: -71.379)
-//@Published var actualLeewardMarkLocation = CLLocationCoordinate2D(latitude: 41.777, longitude: -71.379)
-//@Published var actualPinLocation = CLLocationCoordinate2D(latitude: 41.777, longitude: -71.379)
-//@Published var desiredWindwardDistance: CLLocationDistance = 500
-//@Published var desiredLeewardDistance: CLLocationDistance = 500
-//@Published var desiredJybeDistance: CLLocationDistance = 600
-
-public struct Course: Codable {
+public struct Course: Codable, Equatable {
     public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
     public var windDirection: Double = 0.0
     public var windSpeed: Double = 0.0
@@ -58,13 +44,13 @@ public struct Course: Codable {
     public var desiredLeewardDistance: Double = 400
     public var desiredJybeDistance: Double = 400
     
-    public let boatLength: Distance = (14.0 * 1.5).feetToMeters
+    public static let boatLength: Distance = 4.19
     
     public init() {
     }
     
     public var lengthOfStartLine: Distance {
-        return Double(numberOfBoats) * boatLength * 1.5
+        return Double(numberOfBoats) * Course.boatLength * 1.5
     }
     
     public var desiredCenterOfStartLine: Coordinate {
@@ -86,7 +72,6 @@ public struct Course: Codable {
     public var desiredLeewardMarkLocation: Coordinate {
         return desiredCenterOfStartLine.project(bearing: windDirection + 180, distance: desiredLeewardDistance)
     }
-
 }
 
 extension Double {
@@ -96,9 +81,6 @@ extension Double {
     var feetToMeters: Double { return self * 0.3048 }
     var metersToFeet: Double { return self * 3.28084 }
 }
-
-let earthRadius: Double = 6372797.6
-let sunfishLength: Double = (14.0).feetToMeters
 
 extension Coordinate {
     public func bearing(to: Coordinate) -> Direction {
@@ -120,7 +102,7 @@ extension Coordinate {
     public func project(bearing: Direction, distance: Distance) -> Coordinate {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
-        let distRadians = distance / earthRadius
+        let distRadians = distance / Coordinate.earthRadius
         let bearingRadians = bearing.degreesToRadians
         
         let lat2 = asin( sin(lat1) * cos(distRadians) + cos(lat1) * sin(distRadians) * cos(bearingRadians))
@@ -139,7 +121,7 @@ extension Coordinate {
         
         let distance = acos(sin(lat1) * sin(lat2) +
                             cos(lat1) * cos(lat2) *
-                            cos(lon2 - lon1)) * earthRadius
+                            cos(lon2 - lon1)) * Coordinate.earthRadius
         return distance
     }
 }
