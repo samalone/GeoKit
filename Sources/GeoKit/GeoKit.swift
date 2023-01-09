@@ -33,16 +33,15 @@ public struct Coordinate: Codable, Equatable {
 public struct Course: Codable, Equatable {
     public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
     public var windDirection: Double = 0.0
+    public var courseDirection: Double = 0.0
+    public var isCourseDirectionLocked: Bool = false
     public var windSpeed: Double = 0.0
     public var windGusts: Double = 0.0
     public var numberOfBoats: Int = 10
-    public var actualWindMarkLocation: Coordinate? = nil
-    public var actualJybeMarkLocation: Coordinate? = nil
-    public var actualLeewardMarkLocation: Coordinate? = nil
-    public var actualPinLocation: Coordinate? = nil
     public var desiredWindwardDistance: Double = 400
     public var desiredLeewardDistance: Double = 400
     public var desiredJybeDistance: Double = 400
+    public var marks: [Coordinate] = []
     
     public static let boatLength: Distance = 4.19
     
@@ -54,24 +53,55 @@ public struct Course: Codable, Equatable {
     }
     
     public var desiredCenterOfStartLine: Coordinate {
-        return signal.project(bearing: windDirection - 90, distance: lengthOfStartLine / 2)
+        return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine / 2)
     }
     
     public var desiredPinLocation: Coordinate {
-        return signal.project(bearing: windDirection - 90, distance: lengthOfStartLine)
+        return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine)
     }
     
     public var desiredJybeMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: windDirection - 90, distance: desiredJybeDistance)
+        return desiredCenterOfStartLine.project(bearing: courseDirection - 90, distance: desiredJybeDistance)
     }
     
     public var desiredWindMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: windDirection, distance: desiredWindwardDistance)
+        return desiredCenterOfStartLine.project(bearing: courseDirection, distance: desiredWindwardDistance)
     }
     
     public var desiredLeewardMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: windDirection + 180, distance: desiredLeewardDistance)
+        return desiredCenterOfStartLine.project(bearing: courseDirection + 180, distance: desiredLeewardDistance)
     }
+    
+    public mutating func clearAllMarks() {
+        marks = []
+    }
+    
+    /// Add a mark at the given coordinate
+    public mutating func dropMark(at: Coordinate) {
+        marks.append(at)
+    }
+    
+    /// Remove the mark nearest to the given coordinate.
+    public mutating func pullMark(at: Coordinate) {
+        switch marks.count {
+        case 0:
+            return
+        case 1:
+            marks = []
+        default:
+            var index = 0
+            var d = at.distance(to: marks[0])
+            for i in 1 ..< marks.count {
+                let d2 = at.distance(to: marks[i])
+                if d2 < d {
+                    d = d2
+                    index = i
+                }
+            }
+            marks.remove(at: index)
+        }
+    }
+    
 }
 
 extension Double {
