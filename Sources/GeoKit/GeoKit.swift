@@ -78,7 +78,10 @@ public struct Course: Codable, Equatable {
     
     /// Add a mark at the given coordinate
     public mutating func dropMark(at: Coordinate) {
-        marks.append(at)
+        // Prevent duplicates, since they are pointless and confuse the SwifUI Map view.
+        if !marks.contains(at) {
+            marks.append(at)
+        }
     }
     
     /// Remove the mark nearest to the given coordinate.
