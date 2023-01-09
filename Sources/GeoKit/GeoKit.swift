@@ -38,9 +38,9 @@ public struct Course: Codable, Equatable {
     public var windSpeed: Double = 0.0
     public var windGusts: Double = 0.0
     public var numberOfBoats: Int = 10
-    public var desiredWindwardDistance: Double = 200
-    public var desiredLeewardDistance: Double = 200
-    public var desiredJybeDistance: Double = 200
+    public var desiredWindwardDistance: Double = 175
+    public var desiredLeewardDistance: Double = 175
+    public var desiredJybeDistance: Double = 175
     public var marks: [Coordinate] = []
     
     public static let boatLength: Distance = 4.19
