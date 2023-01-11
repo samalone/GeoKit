@@ -40,7 +40,7 @@ public struct Course: Codable, Equatable {
     public var numberOfBoats: Int = 10
     public var desiredWindwardDistance: Double = 175
     public var desiredLeewardDistance: Double = 175
-    public var desiredJybeDistance: Double = 175
+    public var desiredJibeDistance: Double = 175
     public var marks: [Coordinate] = []
     
     public static let boatLength: Distance = 4.19
@@ -60,8 +60,8 @@ public struct Course: Codable, Equatable {
         return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine)
     }
     
-    public var desiredJybeMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection - 90, distance: desiredJybeDistance)
+    public var desiredJibeMarkLocation: Coordinate {
+        return desiredCenterOfStartLine.project(bearing: courseDirection - 90, distance: desiredJibeDistance)
     }
     
     public var desiredWindMarkLocation: Coordinate {
