@@ -13,99 +13,8 @@ public typealias Direction = Double
 /// Distance in meters
 public typealias Distance = Double
 
-public struct Coordinate: Codable, Equatable {
-    public static let earthRadius: Double = 6372797.6
-    
-    public var latitude: Double
-    public var longitude: Double
-    
-    public init(latitude: Double, longitude: Double) {
-        self.latitude = latitude
-        self.longitude = longitude
-    }
-    
-    public func isValid() -> Bool {
-        return (-90.0 <= latitude) && (latitude <= 90.0) &&
-        (-180.0 <= longitude) && (longitude <= 180)
-    }
-}
-
-public struct Course: Codable, Equatable {
-    public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
-    public var windDirection: Double = 0.0
-    public var courseDirection: Double = 0.0
-    public var isCourseDirectionLocked: Bool = false
-    public var windSpeed: Double = 0.0
-    public var windGusts: Double = 0.0
-    public var numberOfBoats: Int = 10
-    public var desiredWindwardDistance: Double = 175
-    public var desiredLeewardDistance: Double = 175
-    public var desiredJibeDistance: Double = 175
-    public var marks: [Coordinate] = []
-    
-    public static let boatLength: Distance = 4.19
-    
-    public init() {
-    }
-    
-    public var lengthOfStartLine: Distance {
-        return Double(numberOfBoats) * Course.boatLength * 1.5
-    }
-    
-    public var desiredCenterOfStartLine: Coordinate {
-        return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine / 2)
-    }
-    
-    public var desiredPinLocation: Coordinate {
-        return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine)
-    }
-    
-    public var desiredJibeMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection - 90, distance: desiredJibeDistance)
-    }
-    
-    public var desiredWindMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection, distance: desiredWindwardDistance)
-    }
-    
-    public var desiredLeewardMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection + 180, distance: desiredLeewardDistance)
-    }
-    
-    public mutating func clearAllMarks() {
-        marks = []
-    }
-    
-    /// Add a mark at the given coordinate
-    public mutating func dropMark(at: Coordinate) {
-        // Prevent duplicates, since they are pointless and confuse the SwifUI Map view.
-        if !marks.contains(at) {
-            marks.append(at)
-        }
-    }
-    
-    /// Remove the mark nearest to the given coordinate.
-    public mutating func pullMark(at: Coordinate) {
-        switch marks.count {
-        case 0:
-            return
-        case 1:
-            marks = []
-        default:
-            var index = 0
-            var d = at.distance(to: marks[0])
-            for i in 1 ..< marks.count {
-                let d2 = at.distance(to: marks[i])
-                if d2 < d {
-                    d = d2
-                    index = i
-                }
-            }
-            marks.remove(at: index)
-        }
-    }
-    
-}
+/// Average radius of the Earth in meters
+public let earthRadius: Distance = 6372797.6
 
 extension Double {
     var degreesToRadians: Double { return self * .pi / 180 }
@@ -115,7 +24,59 @@ extension Double {
     var metersToFeet: Double { return self * 3.28084 }
 }
 
+#if canImport(CoreLocation)
+
+import CoreLocation
+
+public typealias Coordinate = CLLocationCoordinate2D
+
+extension CLLocationCoordinate2D: Codable {
+    enum CodingKeys: String, CodingKey {
+        case latitude = "latitude"
+        case longitude = "longitude"
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(latitude, forKey: .latitude)
+        try container.encode(longitude, forKey: .longitude)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let lat = try values.decode(Double.self, forKey: .latitude)
+        let lon = try values.decode(Double.self, forKey: .longitude)
+        self = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+    }
+}
+
+extension CLLocationCoordinate2D: Equatable {
+    public static func == (_ a: Self, _ b: Self) -> Bool {
+        return (a.latitude == b.latitude) && (a.longitude == b.longitude)
+    }
+}
+
+#else
+
+public struct Coordinate: Codable, Equatable {
+    public var latitude: Double
+    public var longitude: Double
+    
+    public init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+}
+
+#endif
+
 extension Coordinate {
+    
+    public func isValid() -> Bool {
+        return (-90.0 <= latitude) && (latitude <= 90.0) &&
+        (-180.0 <= longitude) && (longitude <= 180)
+    }
+    
     public func bearing(to: Coordinate) -> Direction {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
@@ -135,7 +96,7 @@ extension Coordinate {
     public func project(bearing: Direction, distance: Distance) -> Coordinate {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
-        let distRadians = distance / Coordinate.earthRadius
+        let distRadians = distance / earthRadius
         let bearingRadians = bearing.degreesToRadians
         
         let lat2 = asin( sin(lat1) * cos(distRadians) + cos(lat1) * sin(distRadians) * cos(bearingRadians))
@@ -154,7 +115,7 @@ extension Coordinate {
         
         let distance = acos(sin(lat1) * sin(lat2) +
                             cos(lat1) * cos(lat2) *
-                            cos(lon2 - lon1)) * Coordinate.earthRadius
+                            cos(lon2 - lon1)) * earthRadius
         return distance
     }
 }
