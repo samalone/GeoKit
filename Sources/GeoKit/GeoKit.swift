@@ -13,7 +13,7 @@ public typealias Direction = Double
 /// Distance in meters
 public typealias Distance = Double
 
-/// Average radius of the Earth in meters
+/// The average radius of the Earth in meters
 public let earthRadius: Distance = 6372797.6
 
 extension Double {
@@ -28,6 +28,7 @@ extension Double {
 
 import CoreLocation
 
+/// A location on the globe in latitude and longitude
 public typealias Coordinate = CLLocationCoordinate2D
 
 extension CLLocationCoordinate2D: Codable {
@@ -77,6 +78,7 @@ extension Coordinate {
         (-180.0 <= longitude) && (longitude <= 180)
     }
     
+    /// The bearing from this coordinate to another coordinate, in degress from true north.
     public func bearing(to: Coordinate) -> Direction {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians

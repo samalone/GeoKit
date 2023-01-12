@@ -6,29 +6,68 @@
 //
 
 import Foundation
+#if canImport(CoreLocation)
+import CoreLocation
+#endif
 
+/**
+ The complete state information for a race course, including location of marks,
+ target areas for marks, wind direction, and wind speed.
+ */
 public struct Course: Codable, Equatable {
+    /// The location of the committee boat.
     public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
-    public var windDirection: Double = 0.0
-    public var courseDirection: Double = 0.0
+    
+    /// The current direction of the wind in degrees from true north.
+    public var windDirection: Direction = 0.0
+    
+    /// The current orientation of the course in degrees from true north.
+    public var courseDirection: Direction = 0.0
+    
+    /// Is the courseDirection locked independently of the windDirection?
     public var isCourseDirectionLocked: Bool = false
+    
+    /// The current wind speed in knots.
     public var windSpeed: Double = 0.0
+    
+    /// The current wind gusts in knots.
     public var windGusts: Double = 0.0
+    
+    /// The number of sailboats in the regatta, which indirectly determines
+    /// the length of the start line.
     public var numberOfBoats: Int = 10
-    public var desiredWindwardDistance: Double = 175
-    public var desiredLeewardDistance: Double = 175
-    public var desiredJibeDistance: Double = 175
+    
+    /// The distance from the center of the start line to the target area
+    /// of the windward mark, in meters.
+    public var desiredWindwardDistance: Distance = 175
+    
+    /// The distance from the center of the start line to the target area
+    /// of the leeward mark, in meters.
+    public var desiredLeewardDistance: Distance = 175
+    
+    /// The distance from the center of the start line to the target area
+    /// of the jibe mark, in meters.
+    public var desiredJibeDistance: Distance = 175
+    
+    /// The coordinates of the physical marks on the course as recorded
+    /// by the mark boat.
     public var marks: [Coordinate] = []
     
+    /// The length of a Sunfish sailboat in meters.
     public static let sunfishBoatLength: Distance = 4.19
     
+    /// Creates a course with default settings for the Providence River
+    /// near Edgewood Yacht Club.
     public init() {
     }
     
+    /// The calculated length of the start line based on the number of boats.
     public var lengthOfStartLine: Distance {
         return Double(numberOfBoats) * Course.sunfishBoatLength * 1.5
     }
     
+    /// The calculated location of the center of the start line, given the
+    /// course direction and number of boats.
     public var desiredCenterOfStartLine: Coordinate {
         return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine / 2)
     }
@@ -49,6 +88,7 @@ public struct Course: Codable, Equatable {
         return desiredCenterOfStartLine.project(bearing: courseDirection + 180, distance: desiredLeewardDistance)
     }
     
+    /// Remove all marks from the course.
     public mutating func clearAllMarks() {
         marks = []
     }
