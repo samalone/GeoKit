@@ -20,7 +20,14 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "GeoKit",
-            dependencies: []),
+            dependencies: [],
+            swiftSettings: [
+                // Enable better optimizations when building in Release configuration. Despite the use of
+                // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
+                // builds. See <https://github.com/swift-server/guides/blob/main/docs/building.md#building-for-production> for details.
+                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
+                .unsafeFlags(["-symbol-graph-minimum-access-level", "private"])
+            ]),
         .testTarget(
             name: "GeoKitTests",
             dependencies: ["GeoKit"]),

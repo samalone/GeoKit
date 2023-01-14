@@ -18,20 +18,13 @@ public struct Course: Codable, Equatable {
     /// The location of the committee boat.
     public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
     
-    /// The current direction of the wind in degrees from true north.
-    public var windDirection: Direction = 0.0
+    public var wind: WindInformation = WindInformation()
     
     /// The current orientation of the course in degrees from true north.
     public var courseDirection: Direction = 0.0
     
     /// Is the courseDirection locked independently of the windDirection?
     public var isCourseDirectionLocked: Bool = false
-    
-    /// The current wind speed in knots.
-    public var windSpeed: Double = 0.0
-    
-    /// The current wind gusts in knots.
-    public var windGusts: Double = 0.0
     
     /// The number of sailboats in the regatta, which indirectly determines
     /// the length of the start line.
