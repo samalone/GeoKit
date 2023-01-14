@@ -17,7 +17,7 @@ public struct WeatherStation: Identifiable, Equatable, Codable {
     /// The location of the weather station
     public var location: Coordinate
     
-    public init(id: String = "", name: String = "", location: Coordinate = Coordinate()) {
+    public init(id: String = "", name: String = "", location: Coordinate = Coordinate(latitude: 0, longitude: 0)) {
         self.id = id
         self.name = name
         self.location = location
