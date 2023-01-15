@@ -8,8 +8,6 @@
 import Foundation
 
 public struct WindInformation: Equatable, Codable {
-    public var station: WeatherStation
-    
     /// The start of the 6-minute interval this data represents, in GMT
     public var startTime: Date
     
@@ -21,17 +19,15 @@ public struct WindInformation: Equatable, Codable {
     public var direction: Direction
     
     /// The latest wind speed in knots.
-    public var speed: Double
+    public var speed: WindSpeed
     
     /// The latest wind gusts in knots
-    public var gusts: Double
+    public var gusts: WindSpeed
     
-    public init(station: WeatherStation = WeatherStation(),
-                startTime: Date = Date.distantPast,
+    public init(startTime: Date = Date.distantPast,
                 direction: Direction = 0,
-                speed: Double = 0,
-                gusts: Double = 0) {
-        self.station = station
+                speed: WindSpeed = 0,
+                gusts: WindSpeed = 0) {
         self.startTime = startTime
         self.direction = direction
         self.speed = speed

@@ -46,6 +46,9 @@ public struct Course: Codable, Equatable {
     /// by the mark boat.
     public var marks: [Coordinate] = []
     
+    public var weatherStationId: String = WeatherStation.providenceVisibility.id
+    public var layoutId: UUID = Layout.triangle.id
+    
     /// The length of a Sunfish sailboat in meters.
     public static let sunfishBoatLength: Distance = 4.19
     

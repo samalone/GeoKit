@@ -22,4 +22,8 @@ public struct WeatherStation: Identifiable, Equatable, Codable {
         self.name = name
         self.location = location
     }
+    
+    static let providenceVisibility = WeatherStation(id: "8453662",
+                                                     name: "Providence Visibility",
+                                                     location: Coordinate(latitude: 41.7857, longitude: -71.3831))
 }

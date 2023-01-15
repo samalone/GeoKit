@@ -13,6 +13,9 @@ public typealias Direction = Double
 /// Distance in meters
 public typealias Distance = Double
 
+/// Wind speed in knots
+public typealias WindSpeed = Double
+
 /// The average radius of the Earth in meters
 public let earthRadius: Distance = 6372797.6
 
@@ -22,6 +25,12 @@ extension Double {
     
     var feetToMeters: Double { return self * 0.3048 }
     var metersToFeet: Double { return self * 3.28084 }
+    
+    var mphToKnots: Double { return self * 0.8689762419 }
+    var knotsToMph: Double { return self * 1.150779448 }
+    
+    var mpsToKnots: Double { return self * 1.9438444924 }
+    var knotsToMps: Double { return self * 0.5144444444 }
 }
 
 #if canImport(CoreLocation)
