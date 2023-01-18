@@ -64,11 +64,12 @@ public struct Locus: Equatable, Codable {
  and the wind direction.
  */
 public struct Layout: Identifiable, Equatable, Codable {
-    /// A short name for the course layout, suitable for a UI picker.
-    public var name: String
     
     /// An immutable ID for this layout, stable even if its name changes.
     public var id: UUID
+    
+    /// A short name for the course layout, suitable for a UI picker.
+    public var name: String
     
     /// A longer description of this course layout.
     public var description: String = ""
@@ -76,8 +77,14 @@ public struct Layout: Identifiable, Equatable, Codable {
     /// The loci that are positioned relative to the committee boat.
     public var loci: [Locus]
     
-    public static let triangle = Layout(name: "Triangle",
-                                        id: UUID(uuidString: "EF24BF8B-E5B9-4E7A-9E47-46E8CED73E79")!,
+    public init(id: UUID, name: String, description: String = "", loci: [Locus]) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.loci = loci
+    }
+    
+    public static let triangle = Layout(id: UUID(uuidString: "EF24BF8B-E5B9-4E7A-9E47-46E8CED73E79")!, name: "Triangle",
                                         description: "A simple triangle course with a combined start/finish line in the middle of the course.",
                                         loci: [
                                             Locus(bearing: -90,
@@ -98,8 +105,7 @@ public struct Layout: Identifiable, Equatable, Codable {
                                                   ])
                                         ])
     
-    public static let windwardLeeward = Layout(name: "Windward/Leeward",
-                                               id: UUID(uuidString: "3538DD08-F2A2-489F-957F-FE429684CDD0")!,
+    public static let windwardLeeward = Layout(id: UUID(uuidString: "3538DD08-F2A2-489F-957F-FE429684CDD0")!, name: "Windward/Leeward",
                                                description: "A simple windward/leeward course with a combined start/finish line in the middle of the course.",
                                                loci: [
                                                 Locus(bearing: -90,

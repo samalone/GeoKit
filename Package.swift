@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "GeoKit",
+    platforms: [
+        .macOS(.v13),
+    ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -20,7 +23,8 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "GeoKit",
-            dependencies: [],
+            dependencies: [
+            ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
                 // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
