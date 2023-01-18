@@ -14,7 +14,11 @@ import CoreLocation
  The complete state information for a race course, including location of marks,
  target areas for marks, wind direction, and wind speed.
  */
-public struct Course: Codable, Equatable {
+public struct Course: Codable, Equatable, Identifiable {
+    public var id: UUID = UUID()
+    
+    public var name: String = ""
+    
     /// The location of the committee boat.
     public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
     
@@ -55,6 +59,11 @@ public struct Course: Codable, Equatable {
     /// Creates a course with default settings for the Providence River
     /// near Edgewood Yacht Club.
     public init() {
+    }
+    
+    public init(id: String, name: String) {
+        self.id = UUID(uuidString: id)!
+        self.name = name
     }
     
     /// The calculated length of the start line based on the number of boats.
@@ -118,4 +127,13 @@ public struct Course: Codable, Equatable {
         }
     }
     
+}
+
+extension Course {
+    public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
+                                     name: "The Frozen Few")
+    public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
+                                       name: "Opti green fleet")
+    public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
+                                              name: "Opti red/white/blue fleet")
 }
