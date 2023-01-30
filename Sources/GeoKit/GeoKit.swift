@@ -33,6 +33,12 @@ extension Double {
     var knotsToMps: Double { return self * 0.5144444444 }
 }
 
+// Apple's CoreLocation module declares a structure called
+// CLLocationCoordinate2D to store a latitude/longitude pair,
+// but it's not available on Linux. We define our own Coordinate
+// structure that is compatible with CLLocationCoordinate2D
+// on Apple platforms, and implemented from scratch on Linux.
+
 #if canImport(CoreLocation)
 
 import CoreLocation
@@ -104,6 +110,7 @@ extension Coordinate {
         return (bearingInDegrees < 0) ? (bearingInDegrees + 360) : bearingInDegrees
     }
     
+    /// Return a new coordinate that is a given bearing and distance from the current coordinate.
     public func project(bearing: Direction, distance: Distance) -> Coordinate {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
@@ -118,6 +125,7 @@ extension Coordinate {
         return Coordinate(latitude: lat2.radiansToDegrees, longitude: lon2.radiansToDegrees)
     }
     
+    /// Compute the distance in meters between two coordinates.
     public func distance(to: Coordinate) -> Distance {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
