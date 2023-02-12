@@ -13,11 +13,16 @@ public typealias Direction = Double
 /// Distance in meters
 public typealias Distance = Double
 
+extension Distance {
+    /// An initial value for course leg distances, if no previous value is available.
+    public static let defaultCourseLeg: Distance = 200.0
+    
+    /// The average radius of the Earth in meters
+    public static let earthRadius: Distance = 6372797.6
+}
+
 /// Wind speed in knots
 public typealias WindSpeed = Double
-
-/// The average radius of the Earth in meters
-public let earthRadius: Distance = 6372797.6
 
 extension Double {
     var degreesToRadians: Double { return self * .pi / 180 }
@@ -114,7 +119,7 @@ extension Coordinate {
     public func project(bearing: Direction, distance: Distance) -> Coordinate {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
-        let distRadians = distance / earthRadius
+        let distRadians = distance / Distance.earthRadius
         let bearingRadians = bearing.degreesToRadians
         
         let lat2 = asin( sin(lat1) * cos(distRadians) + cos(lat1) * sin(distRadians) * cos(bearingRadians))
@@ -134,7 +139,7 @@ extension Coordinate {
         
         let distance = acos(sin(lat1) * sin(lat2) +
                             cos(lat1) * cos(lat2) *
-                            cos(lon2 - lon1)) * earthRadius
+                            cos(lon2 - lon1)) * Distance.earthRadius
         return distance
     }
 }

@@ -19,7 +19,23 @@ public enum DistanceCalculation: Equatable, Codable {
      If several distances share the same name, then the UI should
      display a single slider that adjusts all of the distances together.
      */
-    case adjustable(name: String)
+    case adjustable(name: String, times: Double = 1.0)
+}
+
+public enum CourseError: Error {
+    case distanceNotFound
+}
+
+extension DistanceCalculation {
+    func compute(course: Course) throws -> Distance {
+        switch self {
+        case .totalBoatLengths(let times):
+            return times * Double(course.numberOfBoats) * course.boatLength
+        case .adjustable(let name, let times):
+            guard let distance = course.distances[name] else { throw CourseError.distanceNotFound }
+            return distance * times
+        }
+    }
 }
 
 /**
@@ -56,6 +72,29 @@ public struct Locus: Equatable, Codable {
     
     /// A set of child loci that are placed relative to this locus
     public var loci: [Locus] = []
+    
+    public func positionTargets(for course: Course, from location: Coordinate, action: (MarkSpec, Coordinate) -> ()) throws {
+        let here = location.project(bearing: course.courseDirection + bearing,
+                                    distance: try distance.compute(course: course))
+        if let mark = mark {
+            action(mark, here)
+        }
+        for locus in loci {
+            try locus.positionTargets(for: course, from: here, action: action)
+        }
+    }
+    
+    public func forEachDistanceName(action: (String) -> ()) {
+        switch distance {
+        case .adjustable(let name, _):
+            action(name)
+        case .totalBoatLengths:
+            break
+        }
+        for locus in loci {
+            locus.forEachDistanceName(action: action)
+        }
+    }
 }
 
 /**
@@ -84,7 +123,22 @@ public struct Layout: Identifiable, Equatable, Codable {
         self.loci = loci
     }
     
-    public static let triangle = Layout(id: UUID(uuidString: "EF24BF8B-E5B9-4E7A-9E47-46E8CED73E79")!, name: "Triangle",
+    public func positionTargets(for course: Course, action: (MarkSpec, Coordinate) -> ()) throws {
+        for locus in loci {
+            try locus.positionTargets(for: course, from: course.signal, action: action)
+        }
+    }
+    
+    public var distanceNames: Set<String> {
+        var names = Set<String>()
+        for locus in loci {
+            locus.forEachDistanceName { names.insert($0) }
+        }
+        return names
+    }
+    
+    public static let triangle = Layout(id: UUID(uuidString: "EF24BF8B-E5B9-4E7A-9E47-46E8CED73E79")!,
+                                        name: "Triangle",
                                         description: "A simple triangle course with a combined start/finish line in the middle of the course.",
                                         loci: [
                                             Locus(bearing: -90,
@@ -105,7 +159,8 @@ public struct Layout: Identifiable, Equatable, Codable {
                                                   ])
                                         ])
     
-    public static let windwardLeeward = Layout(id: UUID(uuidString: "3538DD08-F2A2-489F-957F-FE429684CDD0")!, name: "Windward/Leeward",
+    public static let windwardLeeward = Layout(id: UUID(uuidString: "3538DD08-F2A2-489F-957F-FE429684CDD0")!,
+                                               name: "Windward/Leeward",
                                                description: "A simple windward/leeward course with a combined start/finish line in the middle of the course.",
                                                loci: [
                                                 Locus(bearing: -90,

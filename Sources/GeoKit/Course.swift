@@ -10,6 +10,15 @@ import Foundation
 import CoreLocation
 #endif
 
+extension Sequence where Element == Distance {
+    var median: Double {
+        let v = Array(self).sorted()
+        guard v.count > 0 else { return .defaultCourseLeg }
+        let i = v.count / 2
+        return v[i]
+    }
+}
+
 /**
  The complete state information for a race course, including location of marks,
  target areas for marks, wind direction, and wind speed.
@@ -45,6 +54,10 @@ public struct Course: Codable, Equatable, Identifiable {
     /// The distance from the center of the start line to the target area
     /// of the jibe mark, in meters.
     public var desiredJibeDistance: Distance = 175
+    
+    public var boatLength: Distance = sunfishBoatLength
+    
+    public var distances: Dictionary<String, Distance> = [:]
     
     /// The coordinates of the physical marks on the course as recorded
     /// by the mark boat.
@@ -125,6 +138,26 @@ public struct Course: Codable, Equatable, Identifiable {
             }
             marks.remove(at: index)
         }
+    }
+    
+    public mutating func setDistance(name: String, to distance: Distance) {
+        distances[name] = distance
+    }
+    
+    /**
+     Change the course to use the provided Layout.
+     
+     This updates the layoutId and ensures that the course distances
+     match the ones in the layout.
+     */
+    public mutating func changeLayout(to layout: Layout) {
+        var newDistances: [String: Distance] = [:]
+        let medianDistance = distances.values.median
+        for newName in layout.distanceNames {
+            newDistances[newName] = distances[newName] ?? medianDistance
+        }
+        layoutId = layout.id
+        distances = newDistances
     }
     
 }
