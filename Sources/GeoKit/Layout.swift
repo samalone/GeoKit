@@ -6,6 +6,12 @@
 //
 
 import Foundation
+#if canImport(CoreLocation)
+    import CoreLocation
+#endif
+#if canImport(CoreGraphics)
+    import CoreGraphics
+#endif
 
 public enum DistanceCalculation: Equatable, Codable {
     /**

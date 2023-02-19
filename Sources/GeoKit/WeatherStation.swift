@@ -6,6 +6,12 @@
 //
 
 import Foundation
+#if canImport(CoreLocation)
+    import CoreLocation
+#endif
+#if canImport(CoreGraphics)
+    import CoreGraphics
+#endif
 
 public struct WeatherStation: Identifiable, Equatable, Codable {
     /// The 7-digit ID of the weather station
