@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Point.swift
 //  
 //
 //  Created by Stuart A. Malone on 2/19/23.
@@ -35,9 +35,8 @@ import Foundation
 
 #endif
 
-extension Point {
+extension Point: Location {
     
-    /// The bearing from this coordinate to another coordinate, in degress from true north.
     public func bearing(to: Point) -> Direction {
         let dx = to.x - x
         let dy = y - to.y

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  WindInformation.swift
 //  
 //
 //  Created by Stuart A. Malone on 1/14/23.

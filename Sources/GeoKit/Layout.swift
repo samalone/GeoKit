@@ -1,5 +1,5 @@
 //
-//  CourseLayout.swift
+//  Layout.swift
 //  
 //
 //  Created by Stuart A. Malone on 1/12/23.
@@ -54,6 +54,11 @@ public struct MarkSpec: Equatable, Codable {
 
     /// Should the UI draw a zone around the mark?
     public var hasZone: Bool = false
+    
+    public init(name: String, hasZone: Bool = false) {
+        self.name = name
+        self.hasZone = hasZone
+    }
 }
 
 /**
@@ -79,14 +84,19 @@ public struct Locus: Equatable, Codable {
     /// A set of child loci that are placed relative to this locus
     public var loci: [Locus] = []
     
-    public func positionTargets(for course: Course, from location: Coordinate, action: (MarkSpec, Coordinate) -> ()) throws {
+    public func positionTargets<Loc: Location>(for course: Course, from location: Loc,
+                                               action: (MarkSpec, Loc) -> (),
+                                               distances: ((String, Loc, Loc) -> ())?) throws {
         let here = location.project(bearing: course.courseDirection + bearing,
                                     distance: try distance.compute(course: course))
+        if let distances, case .adjustable(let name, _) = distance {
+            distances(name, location, here)
+        }
         if let mark = mark {
             action(mark, here)
         }
         for locus in loci {
-            try locus.positionTargets(for: course, from: here, action: action)
+            try locus.positionTargets(for: course, from: here, action: action, distances: distances)
         }
     }
     
@@ -131,7 +141,15 @@ public struct Layout: Identifiable, Equatable, Codable {
     
     public func positionTargets(for course: Course, action: (MarkSpec, Coordinate) -> ()) throws {
         for locus in loci {
-            try locus.positionTargets(for: course, from: course.signal, action: action)
+            try locus.positionTargets(for: course, from: course.signal, action: action, distances: nil)
+        }
+    }
+    
+    public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
+                                               action: (MarkSpec, Loc) -> (),
+                                               distances: ((String, Loc, Loc) -> ())? = nil) throws {
+        for locus in loci {
+            try locus.positionTargets(for: course, from: signal, action: action, distances: distances)
         }
     }
     

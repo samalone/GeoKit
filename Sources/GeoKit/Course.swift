@@ -7,7 +7,7 @@
 
 import Foundation
 #if canImport(CoreLocation)
-import CoreLocation
+    import CoreLocation
 #endif
 
 extension Sequence where Element == Distance {
@@ -74,9 +74,10 @@ public struct Course: Codable, Equatable, Identifiable {
     public init() {
     }
     
-    public init(id: String, name: String) {
+    public init(id: String, name: String, distances: Dictionary<String, Distance> = [:]) {
         self.id = UUID(uuidString: id)!
         self.name = name
+        self.distances = distances
     }
     
     /// The calculated length of the start line based on the number of boats.
@@ -164,7 +165,8 @@ public struct Course: Codable, Equatable, Identifiable {
 
 extension Course {
     public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
-                                     name: "The Frozen Few")
+                                     name: "The Frozen Few",
+                                            distances: ["wind": 200, "lee": 200, "jibe": 200])
     public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
                                        name: "Opti green fleet")
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
