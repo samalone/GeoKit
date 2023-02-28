@@ -51,13 +51,9 @@ extension DistanceCalculation {
 public struct MarkSpec: Equatable, Codable {
     /// The name of the mark
     public var name: String
-
-    /// Should the UI draw a zone around the mark?
-    public var hasZone: Bool = false
     
-    public init(name: String, hasZone: Bool = false) {
+    public init(name: String) {
         self.name = name
-        self.hasZone = hasZone
     }
 }
 
@@ -86,11 +82,11 @@ public struct Locus: Equatable, Codable {
     
     public func positionTargets<Loc: Location>(for course: Course, from location: Loc,
                                                action: (MarkSpec, Loc) -> (),
-                                               distances: ((String, Loc, Loc) -> ())?) throws {
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())?) throws {
         let here = location.project(bearing: course.courseDirection + bearing,
                                     distance: try distance.compute(course: course))
-        if let distances, case .adjustable(let name, _) = distance {
-            distances(name, location, here)
+        if let distances {
+            distances(distance, location, here)
         }
         if let mark = mark {
             action(mark, here)
@@ -109,6 +105,16 @@ public struct Locus: Equatable, Codable {
         }
         for locus in loci {
             locus.forEachDistanceName(action: action)
+        }
+    }
+}
+
+extension Array where Element == Locus {
+    public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
+                                               action: (MarkSpec, Loc) -> (),
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) throws {
+        for locus in self {
+            try locus.positionTargets(for: course, from: signal, action: action, distances: distances)
         }
     }
 }
@@ -140,17 +146,13 @@ public struct Layout: Identifiable, Equatable, Codable {
     }
     
     public func positionTargets(for course: Course, action: (MarkSpec, Coordinate) -> ()) throws {
-        for locus in loci {
-            try locus.positionTargets(for: course, from: course.signal, action: action, distances: nil)
-        }
+        try loci.positionTargets(for: course, from: course.signal, action: action)
     }
     
     public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
                                                action: (MarkSpec, Loc) -> (),
-                                               distances: ((String, Loc, Loc) -> ())? = nil) throws {
-        for locus in loci {
-            try locus.positionTargets(for: course, from: signal, action: action, distances: distances)
-        }
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) throws {
+        try loci.positionTargets(for: course, from: signal, action: action, distances: distances)
     }
     
     public var distanceNames: Set<String> {
@@ -173,13 +175,13 @@ public struct Layout: Identifiable, Equatable, Codable {
                                                           mark: MarkSpec(name: "pin")),
                                                     Locus(bearing: 0,
                                                           distance: .adjustable(name: "wind"),
-                                                          mark: MarkSpec(name: "wind", hasZone: true)),
+                                                          mark: MarkSpec(name: "wind")),
                                                     Locus(bearing: -90,
                                                           distance: .adjustable(name: "jibe"),
-                                                          mark: MarkSpec(name: "jibe", hasZone: true)),
+                                                          mark: MarkSpec(name: "jibe")),
                                                     Locus(bearing: 180,
                                                           distance: .adjustable(name: "lee"),
-                                                          mark: MarkSpec(name: "lee", hasZone: true)),
+                                                          mark: MarkSpec(name: "lee")),
                                                   ])
                                         ])
     
@@ -195,10 +197,10 @@ public struct Layout: Identifiable, Equatable, Codable {
                                                               mark: MarkSpec(name: "pin")),
                                                         Locus(bearing: 0,
                                                               distance: .adjustable(name: "wind"),
-                                                              mark: MarkSpec(name: "wind", hasZone: true)),
+                                                              mark: MarkSpec(name: "wind")),
                                                         Locus(bearing: 180,
                                                               distance: .adjustable(name: "lee"),
-                                                              mark: MarkSpec(name: "lee", hasZone: true)),
+                                                              mark: MarkSpec(name: "lee")),
                                                       ])
                                                ])
 

@@ -171,4 +171,9 @@ extension Course {
                                        name: "Opti green fleet")
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
                                               name: "Opti red/white/blue fleet")
+    
+    public static let kitchenSink =
+        Course(id: "307338F1-1354-4221-A617-872C26B05A40",
+               name: "The Kitchen Sink",
+               distances: ["wind": 200, "lee": 200, "jibe": 200, "offset": 40, "gate": 60])
 }

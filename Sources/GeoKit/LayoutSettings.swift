@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CourseShape {
+public enum CourseShape {
     /// No jibe mark (windward/leeward course)
     case windwardLeeward
     
@@ -18,7 +18,7 @@ enum CourseShape {
     case trapezoid
 }
 
-enum StartLinePlacement {
+public enum StartLinePlacement {
     /// Between the wind and leeward marks
     case midCourse
     
@@ -29,7 +29,7 @@ enum StartLinePlacement {
     case downwind
 }
 
-enum FinishLinePlacement {
+public enum FinishLinePlacement {
     /// The start line is also the finish line
     case sharedWithStartLine
     
@@ -47,37 +47,48 @@ enum FinishLinePlacement {
     case downwindReach
 }
 
-enum WindMarkOption {
+public enum WindMarkOption {
     case singleMark
     case markAndOffset
 }
 
-enum LeewardMarkOption {
+public enum LeewardMarkOption {
     case singleMark
     case gate
 }
 
-struct LayoutSettings {
-    var shape: CourseShape = .triangle
-    var start: StartLinePlacement = .midCourse
-    var finish: FinishLinePlacement = .sharedWithStartLine
-    var wind: WindMarkOption = .singleMark
-    var lee: LeewardMarkOption = .singleMark
+public struct LayoutSettings {
+    public var shape: CourseShape = .triangle
+    public var start: StartLinePlacement = .midCourse
+    public var finish: FinishLinePlacement = .sharedWithStartLine
+    public var wind: WindMarkOption = .singleMark
+    public var lee: LeewardMarkOption = .singleMark
+    
+    public init(shape: CourseShape, start: StartLinePlacement, finish: FinishLinePlacement, wind: WindMarkOption, lee: LeewardMarkOption) {
+        self.shape = shape
+        self.start = start
+        self.finish = finish
+        self.wind = wind
+        self.lee = lee
+    }
     
     var windMarkLocus: Locus {
-        var locus = Locus(bearing: 0,
-                          distance: .adjustable(name: "wind"),
-                          mark: MarkSpec(name: "wind", hasZone: true))
+        var windCenter = Locus(bearing: 0,
+                          distance: .adjustable(name: "wind"))
         switch wind {
         case .singleMark:
-            break
+            windCenter.mark = MarkSpec(name: "Wind")
+            
         case .markAndOffset:
-            locus.loci.append(Locus(bearing: -90,
-                                    distance: .adjustable(name: "offset"),
-                                    mark: MarkSpec(name: "offset", hasZone: true)))
+            windCenter.loci.append(Locus(bearing: 90,
+                                         distance: .adjustable(name: "offset", times: 0.5),
+                                         mark: MarkSpec(name: "Wind")))
+            windCenter.loci.append(Locus(bearing: -90,
+                                         distance: .adjustable(name: "offset", times: 0.5),
+                                    mark: MarkSpec(name: "Offset")))
         }
         
-        return locus
+        return windCenter
     }
     
     var leewardMarkLocus: Locus {
@@ -95,18 +106,32 @@ struct LayoutSettings {
         }
         switch lee {
         case .singleMark:
-            locus.mark = MarkSpec(name: "lee", hasZone: true)
+            locus.mark = MarkSpec(name: "lee")
         case .gate:
             locus.loci = [
                 Locus(bearing: -90,
                       distance: .adjustable(name: "gate", times: 0.5),
-                      mark: MarkSpec(name: "left gate", hasZone: true)),
+                      mark: MarkSpec(name: "left gate")),
                 Locus(bearing: 90,
                       distance: .adjustable(name: "gate", times: 0.5),
-                      mark: MarkSpec(name: "right gate", hasZone: true))
+                      mark: MarkSpec(name: "right gate"))
             ]
         }
         return locus
+    }
+    
+    public var loci: [Locus] {
+        var centerOfStartLine = Locus(bearing: -90,
+                                      distance: .totalBoatLengths(times: 0.75))
+        
+        centerOfStartLine.loci.append(windMarkLocus)
+        centerOfStartLine.loci.append(leewardMarkLocus)
+        
+        let pin = Locus(bearing: -90,
+                        distance: .totalBoatLengths(times: 1.5),
+                        mark: MarkSpec(name: "Pin"))
+        
+        return [centerOfStartLine, pin]
     }
     
     
