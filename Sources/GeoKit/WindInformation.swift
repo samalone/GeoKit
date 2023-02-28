@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct WindInformation: Equatable, Codable {
+public struct WindInformation: Equatable, Codable, Sendable {
     /// The start of the 6-minute interval this data represents, in GMT
     public var startTime: Date
     
