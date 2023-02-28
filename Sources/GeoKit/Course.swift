@@ -23,7 +23,7 @@ extension Sequence where Element == Distance {
  The complete state information for a race course, including location of marks,
  target areas for marks, wind direction, and wind speed.
  */
-public struct Course: Codable, Equatable, Identifiable {
+public struct Course: Codable, Equatable, Identifiable, Sendable {
     public var id: UUID = UUID()
     
     public var name: String = ""
@@ -108,7 +108,7 @@ public struct Course: Codable, Equatable, Identifiable {
     }
     
     /// Remove all marks from the course.
-    public mutating func clearAllMarks() {
+    public mutating func pullAllMarks() {
         marks = []
     }
     
@@ -121,7 +121,7 @@ public struct Course: Codable, Equatable, Identifiable {
     }
     
     /// Remove the mark nearest to the given coordinate.
-    public mutating func pullMark(at: Coordinate) {
+    public mutating func pullMark(near location: Coordinate) {
         switch marks.count {
         case 0:
             return
@@ -129,9 +129,9 @@ public struct Course: Codable, Equatable, Identifiable {
             marks = []
         default:
             var index = 0
-            var d = at.distance(to: marks[0])
+            var d = location.distance(to: marks[0])
             for i in 1 ..< marks.count {
-                let d2 = at.distance(to: marks[i])
+                let d2 = location.distance(to: marks[i])
                 if d2 < d {
                     d = d2
                     index = i
