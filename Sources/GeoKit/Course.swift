@@ -19,6 +19,63 @@ extension Sequence where Element == Distance {
     }
 }
 
+// Any given course only uses a subset of these Distances,
+// but storing all of them makes it easy to switch from one
+// course layout to another.
+public struct Distances: Codable, Sendable, Equatable {
+    public var upwind: Distance = 200
+    public var downwind: Distance = 200
+    public var width: Distance = 200
+    public var offset: Distance = 40
+    public var gate: Distance = 40
+    public var start: Distance = 100
+    public var finish: Distance = 100
+    public var finishLine: Distance = 40
+    
+    public subscript(key: DistanceMeasurement) -> Distance {
+        get {
+            switch key {
+            case .upwind:
+                return upwind
+            case .downwind:
+                return downwind
+            case .width:
+                return width
+            case .offset:
+                return offset
+            case .gate:
+                return gate
+            case .start:
+                return start
+            case .finish:
+                return finish
+            case .finishLine:
+                return finishLine
+            }
+        }
+        set {
+            switch key {
+            case .upwind:
+                upwind = newValue
+            case .downwind:
+                downwind = newValue
+            case .width:
+                width = newValue
+            case .offset:
+                offset = newValue
+            case .gate:
+                gate = newValue
+            case .start:
+                start = newValue
+            case .finish:
+                finish = newValue
+            case .finishLine:
+                finishLine = newValue
+            }
+        }
+    }
+}
+
 /**
  The complete state information for a race course, including location of marks,
  target areas for marks, wind direction, and wind speed.
@@ -45,7 +102,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public var boatLength: Distance = sunfishBoatLength
     
-    public var distances: Dictionary<DistanceMeasurement, Distance> = [.upwind: 200, .downwind: 200, .width: 200]
+    public var distances = Distances()
     
     /// The coordinates of the physical marks on the course as recorded
     /// by the mark boat.
@@ -62,10 +119,13 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public init() {
     }
     
-    public init(id: String, name: String, distances: Dictionary<DistanceMeasurement, Distance> = [:]) {
+    public init(id: String, name: String) {
         self.id = UUID(uuidString: id)!
         self.name = name
-        self.distances = distances
+    }
+    
+    public var layout: Layout? {
+        return layoutProvider.findLayout(id: layoutId)
     }
     
     /// The calculated length of the start line based on the number of boats.
@@ -107,10 +167,6 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
     }
     
-    public mutating func setDistance(measurement: DistanceMeasurement, to distance: Distance) {
-        distances[measurement] = distance
-    }
-    
     /**
      Change the course to use the provided Layout.
      
@@ -118,21 +174,82 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
      match the ones in the layout.
      */
     public mutating func changeLayout(to layout: Layout) {
-        var newDistances: [DistanceMeasurement: Distance] = [:]
-        let medianDistance = distances.values.median
-        for newName in layout.distanceMeasurements {
-            newDistances[newName] = distances[newName] ?? medianDistance
-        }
         layoutId = layout.id
-        distances = newDistances
     }
     
+    public func targetCoordinate(target: MarkRole) -> Coordinate? {
+        guard let layout else { return nil }
+        var coord: Coordinate? = nil
+        layout.positionTargets(for: self) { mark, location in
+            if mark == target {
+                coord = location
+            }
+        }
+        return coord
+    }
+    
+    public func positionTargets(action: (MarkRole, Coordinate) -> ()) {
+        guard let layout = layout else { return }
+        layout.loci.positionTargets(for: self, from: signal, action: action)
+    }
+    
+    public func positionTargets(action: (MarkRole, Coordinate) async -> ()) async {
+        guard let layout = layout else { return }
+        await layout.loci.positionTargets(for: self, from: signal, action: action)
+    }
+    
+    public func positionTargets<Loc: Location>(from signal: Loc,
+                                               action: (MarkRole, Loc) -> (),
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
+        guard let layout = layout else { return }
+        layout.loci.positionTargets(for: self, from: signal, action: action, distances: distances)
+    }
+    
+    public var targetMarks: [MarkRole] {
+        guard let layout else { return [] }
+        return layout.marks
+    }
+    
+    /// The maximum distance any mark is from the start flag
+    public var maximumRadius: Distance {
+        var max: Distance = 0
+        positionTargets { mark, location in
+            let d = signal.distance(to: location)
+            if d > max {
+                max = d
+            }
+        }
+        return max
+    }
+    
+    /// Return the closest target to the markBoatLocation that doesn't have
+    /// an existing mark within closeEnough of the target.
+    public func nextTarget(from markBoatLocation: Coordinate, closeEnough: Distance, extraMark: Coordinate? = nil) -> MarkRole? {
+        var nextTarget: MarkRole? = nil
+        var nextMarkDistance = Distance.infinity
+        
+        var existingMarks = marks
+        if let extraMark {
+            existingMarks.append(extraMark)
+        }
+        
+        positionTargets { target, targetLocation in
+            if !marks.contains(where: { $0.distance(to: targetLocation) <= closeEnough}) {
+                let d = markBoatLocation.distance(to: targetLocation)
+                if d < nextMarkDistance {
+                    nextTarget = target
+                    nextMarkDistance = d
+                }
+            }
+        }
+        
+        return nextTarget
+    }
 }
 
 extension Course {
     public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
-                                     name: "The Frozen Few",
-                                            distances: [.upwind: 200, .downwind: 200, .width: 200])
+                                     name: "The Frozen Few")
     public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
                                        name: "Opti green fleet")
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
@@ -140,6 +257,5 @@ extension Course {
     
     public static let kitchenSink =
         Course(id: "307338F1-1354-4221-A617-872C26B05A40",
-               name: "The Kitchen Sink",
-               distances: [.upwind: 200, .downwind: 200, .width: 200, .offset: 40, .gate: 60])
+               name: "The Kitchen Sink")
 }

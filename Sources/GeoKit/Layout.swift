@@ -40,6 +40,10 @@ public enum DistanceMeasurement: String, Codable, Sendable {
     case finishLine
 }
 
+extension DistanceMeasurement: Identifiable {
+    public var id: DistanceMeasurement { self }
+}
+
 public enum DistanceCalculation: Equatable, Codable {
     /**
      This distance is some multiple of the total lengths of the boats
@@ -60,13 +64,12 @@ public enum CourseError: Error {
 }
 
 extension DistanceCalculation {
-    func compute(course: Course) throws -> Distance {
+    func compute(course: Course) -> Distance {
         switch self {
         case .totalBoatLengths(let times):
             return times * Double(course.numberOfBoats) * course.boatLength
         case .adjustable(let measurement, let times):
-            guard let distance = course.distances[measurement] else { throw CourseError.distanceNotFound }
-            return distance * times
+            return course.distances[measurement] * times
         }
     }
 }
@@ -102,6 +105,10 @@ public enum MarkRole: Codable {
     case leewardJibe
 }
 
+extension MarkRole: Identifiable {
+    public var id: MarkRole { self }
+}
+
 /**
  A Locus is an interesting point on the race course.
  Sometimes there will be a mark at the locus, but other times
@@ -127,9 +134,9 @@ public struct Locus: Equatable, Codable {
     
     public func positionTargets<Loc: Location>(for course: Course, from location: Loc,
                                                action: (MarkRole, Loc) -> (),
-                                               distances: ((DistanceCalculation, Loc, Loc) -> ())?) throws {
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())?) {
         let here = location.project(bearing: course.courseDirection + bearing,
-                                    distance: try distance.compute(course: course))
+                                    distance: distance.compute(course: course))
         if let distances {
             distances(distance, location, here)
         }
@@ -137,7 +144,23 @@ public struct Locus: Equatable, Codable {
             action(mark, here)
         }
         for locus in loci {
-            try locus.positionTargets(for: course, from: here, action: action, distances: distances)
+            locus.positionTargets(for: course, from: here, action: action, distances: distances)
+        }
+    }
+    
+    public func positionTargets<Loc: Location>(for course: Course, from location: Loc,
+                                               action: (MarkRole, Loc) async -> (),
+                                               distances: ((DistanceCalculation, Loc, Loc) async -> ())?) async {
+        let here = location.project(bearing: course.courseDirection + bearing,
+                                    distance: distance.compute(course: course))
+        if let distances {
+            await distances(distance, location, here)
+        }
+        if let mark = mark {
+            await action(mark, here)
+        }
+        for locus in loci {
+            await locus.positionTargets(for: course, from: here, action: action, distances: distances)
         }
     }
     
@@ -152,14 +175,37 @@ public struct Locus: Equatable, Codable {
             locus.forEachDistanceMeasurement(action: action)
         }
     }
+    
+    public func forEachMark(action: (MarkRole) -> ()) {
+        if let mark {
+            action(mark)
+        }
+        for locus in loci {
+            locus.forEachMark(action: action)
+        }
+    }
 }
 
 extension Array where Element == Locus {
     public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
                                                action: (MarkRole, Loc) -> (),
-                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) throws {
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
         for locus in self {
-            try locus.positionTargets(for: course, from: signal, action: action, distances: distances)
+            locus.positionTargets(for: course, from: signal, action: action, distances: distances)
+        }
+    }
+    
+    public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
+                                               action: (MarkRole, Loc) async -> (),
+                                               distances: ((DistanceCalculation, Loc, Loc) async -> ())? = nil) async {
+        for locus in self {
+            await locus.positionTargets(for: course, from: signal, action: action, distances: distances)
+        }
+    }
+    
+    public func forEachMark(action: (MarkRole) -> ()) {
+        for locus in self {
+            locus.forEachMark(action: action)
         }
     }
 }
@@ -190,20 +236,47 @@ public struct Layout: Identifiable, Equatable, Codable {
         self.loci = loci
     }
     
-    public func positionTargets(for course: Course, action: (MarkRole, Coordinate) -> ()) throws {
-        try loci.positionTargets(for: course, from: course.signal, action: action)
+    public var marks: [MarkRole] {
+        var result: [MarkRole] = []
+        for locus in loci {
+            locus.forEachMark { result.append($0) }
+        }
+        return result
+    }
+    
+    public func positionTargets(for course: Course, action: (MarkRole, Coordinate) -> ()) {
+        loci.positionTargets(for: course, from: course.signal, action: action)
+    }
+    
+    public func positionTargets(for course: Course, action: (MarkRole, Coordinate) async -> ()) async {
+        await loci.positionTargets(for: course, from: course.signal, action: action)
     }
     
     public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
                                                action: (MarkRole, Loc) -> (),
-                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) throws {
-        try loci.positionTargets(for: course, from: signal, action: action, distances: distances)
+                                               distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
+        loci.positionTargets(for: course, from: signal, action: action, distances: distances)
     }
     
-    public var distanceMeasurements: Set<DistanceMeasurement> {
-        var names = Set<DistanceMeasurement>()
+    public func targetCoordinate(course: Course, target: MarkRole) -> Coordinate? {
+        var coord: Coordinate? = nil
+        GeoKit.Layout.triangle.positionTargets(for: course) { mark, location in
+            if mark == target {
+                coord = location
+            }
+        }
+        return coord
+    }
+    
+    /// Return the distance measurements that are actually used in the layout
+    public var usedMeasurements: [DistanceMeasurement] {
+        var names: [DistanceMeasurement] = []
         for locus in loci {
-            locus.forEachDistanceMeasurement { names.insert($0) }
+            locus.forEachDistanceMeasurement {
+                if !names.contains($0) {
+                    names.append($0)
+                }
+            }
         }
         return names
     }
