@@ -43,21 +43,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     /// the length of the start line.
     public var numberOfBoats: Int = 10
     
-    /// The distance from the center of the start line to the target area
-    /// of the windward mark, in meters.
-    public var desiredWindwardDistance: Distance = 175
-    
-    /// The distance from the center of the start line to the target area
-    /// of the leeward mark, in meters.
-    public var desiredLeewardDistance: Distance = 175
-    
-    /// The distance from the center of the start line to the target area
-    /// of the jibe mark, in meters.
-    public var desiredJibeDistance: Distance = 175
-    
     public var boatLength: Distance = sunfishBoatLength
     
-    public var distances: Dictionary<DistanceMeasurement, Distance> = [:]
+    public var distances: Dictionary<DistanceMeasurement, Distance> = [.upwind: 200, .downwind: 200, .width: 200]
     
     /// The coordinates of the physical marks on the course as recorded
     /// by the mark boat.
@@ -83,28 +71,6 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     /// The calculated length of the start line based on the number of boats.
     public var lengthOfStartLine: Distance {
         return Double(numberOfBoats) * Course.sunfishBoatLength * 1.5
-    }
-    
-    /// The calculated location of the center of the start line, given the
-    /// course direction and number of boats.
-    public var desiredCenterOfStartLine: Coordinate {
-        return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine / 2)
-    }
-    
-    public var desiredPinLocation: Coordinate {
-        return signal.project(bearing: courseDirection - 90, distance: lengthOfStartLine)
-    }
-    
-    public var desiredJibeMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection - 90, distance: desiredJibeDistance)
-    }
-    
-    public var desiredWindMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection, distance: desiredWindwardDistance)
-    }
-    
-    public var desiredLeewardMarkLocation: Coordinate {
-        return desiredCenterOfStartLine.project(bearing: courseDirection + 180, distance: desiredLeewardDistance)
     }
     
     /// Remove all marks from the course.
