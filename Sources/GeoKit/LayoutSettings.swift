@@ -74,18 +74,18 @@ public struct LayoutSettings {
     
     var windMarkLocus: Locus {
         var windCenter = Locus(bearing: 0,
-                          distance: .adjustable(name: "wind"))
+                               distance: .adjustable(measurement: .upwind))
         switch wind {
         case .singleMark:
-            windCenter.mark = MarkSpec(name: "Wind")
+            windCenter.mark = .windward
             
         case .markAndOffset:
             windCenter.loci.append(Locus(bearing: 90,
-                                         distance: .adjustable(name: "offset", times: 0.5),
-                                         mark: MarkSpec(name: "Wind")))
+                                         distance: .adjustable(measurement: .offset, times: 0.5),
+                                         mark: .windward))
             windCenter.loci.append(Locus(bearing: -90,
-                                         distance: .adjustable(name: "offset", times: 0.5),
-                                    mark: MarkSpec(name: "Offset")))
+                                         distance: .adjustable(measurement: .offset, times: 0.5),
+                                         mark: .windwardOffset))
         }
         
         return windCenter
@@ -96,25 +96,25 @@ public struct LayoutSettings {
         switch start {
         case .midCourse:
             locus = Locus(bearing: 180,
-                          distance: .adjustable(name: "lee"))
+                          distance: .adjustable(measurement: .downwind))
         case .atLeewardMark:
             locus = Locus(bearing: -90,
                           distance: .totalBoatLengths(times: 0.75))
         case .downwind:
             locus = Locus(bearing: 0,
-                          distance: .adjustable(name: "lee"))
+                          distance: .adjustable(measurement: .start))
         }
         switch lee {
         case .singleMark:
-            locus.mark = MarkSpec(name: "lee")
+            locus.mark = .leeward
         case .gate:
             locus.loci = [
                 Locus(bearing: -90,
-                      distance: .adjustable(name: "gate", times: 0.5),
-                      mark: MarkSpec(name: "left gate")),
+                      distance: .adjustable(measurement: .gate, times: 0.5),
+                      mark: .leewardGateLeft),
                 Locus(bearing: 90,
-                      distance: .adjustable(name: "gate", times: 0.5),
-                      mark: MarkSpec(name: "right gate"))
+                      distance: .adjustable(measurement: .gate, times: 0.5),
+                      mark: .leewardGateRight)
             ]
         }
         return locus
@@ -129,7 +129,7 @@ public struct LayoutSettings {
         
         let pin = Locus(bearing: -90,
                         distance: .totalBoatLengths(times: 1.5),
-                        mark: MarkSpec(name: "Pin"))
+                        mark: .startPin)
         
         return [centerOfStartLine, pin]
     }

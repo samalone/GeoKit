@@ -57,7 +57,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public var boatLength: Distance = sunfishBoatLength
     
-    public var distances: Dictionary<String, Distance> = [:]
+    public var distances: Dictionary<DistanceMeasurement, Distance> = [:]
     
     /// The coordinates of the physical marks on the course as recorded
     /// by the mark boat.
@@ -74,7 +74,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public init() {
     }
     
-    public init(id: String, name: String, distances: Dictionary<String, Distance> = [:]) {
+    public init(id: String, name: String, distances: Dictionary<DistanceMeasurement, Distance> = [:]) {
         self.id = UUID(uuidString: id)!
         self.name = name
         self.distances = distances
@@ -141,8 +141,8 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
     }
     
-    public mutating func setDistance(name: String, to distance: Distance) {
-        distances[name] = distance
+    public mutating func setDistance(measurement: DistanceMeasurement, to distance: Distance) {
+        distances[measurement] = distance
     }
     
     /**
@@ -152,9 +152,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
      match the ones in the layout.
      */
     public mutating func changeLayout(to layout: Layout) {
-        var newDistances: [String: Distance] = [:]
+        var newDistances: [DistanceMeasurement: Distance] = [:]
         let medianDistance = distances.values.median
-        for newName in layout.distanceNames {
+        for newName in layout.distanceMeasurements {
             newDistances[newName] = distances[newName] ?? medianDistance
         }
         layoutId = layout.id
@@ -166,7 +166,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
 extension Course {
     public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
                                      name: "The Frozen Few",
-                                            distances: ["wind": 200, "lee": 200, "jibe": 200])
+                                            distances: [.upwind: 200, .downwind: 200, .width: 200])
     public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
                                        name: "Opti green fleet")
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
@@ -175,5 +175,5 @@ extension Course {
     public static let kitchenSink =
         Course(id: "307338F1-1354-4221-A617-872C26B05A40",
                name: "The Kitchen Sink",
-               distances: ["wind": 200, "lee": 200, "jibe": 200, "offset": 40, "gate": 60])
+               distances: [.upwind: 200, .downwind: 200, .width: 200, .offset: 40, .gate: 60])
 }
