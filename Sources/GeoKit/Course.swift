@@ -119,9 +119,16 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public init() {
     }
     
-    public init(id: String, name: String) {
+    public init(id: UUID, name: String = "", layoutID: UUID = Layout.triangle.id) {
+        self.id = id
+        self.name = name
+        self.layoutId = layoutID
+    }
+    
+    public init(id: String, name: String = "", layoutID: UUID = Layout.triangle.id) {
         self.id = UUID(uuidString: id)!
         self.name = name
+        self.layoutId = layoutID
     }
     
     public var layout: Layout? {
@@ -249,7 +256,8 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
 
 extension Course {
     public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
-                                     name: "The Frozen Few")
+                                            name: "The Frozen Few",
+                                            layoutID: Layout.digitalN.id)
     public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
                                        name: "Opti green fleet")
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
@@ -258,4 +266,19 @@ extension Course {
     public static let kitchenSink =
         Course(id: "307338F1-1354-4221-A617-872C26B05A40",
                name: "The Kitchen Sink")
+}
+
+extension Course {
+    public init?(json: String) {
+        let decoder = JSONDecoder()
+        guard let data = json.data(using: .utf8) else { return nil }
+        guard let c = try? decoder.decode(Course.self, from: data) else { return nil }
+        self = c
+    }
+    
+    public var jsonString: String {
+        let encoder = JSONEncoder()
+        let data = try! encoder.encode(self)
+        return String(data: data, encoding: .utf8)!
+    }
 }
