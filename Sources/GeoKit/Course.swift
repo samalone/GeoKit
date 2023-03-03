@@ -102,6 +102,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public var boatLength: Distance = sunfishBoatLength
     
+    /// The size of each target area on the chart
+    public var targetRadius: Distance = 15.0
+    
     public var distances = Distances()
     
     /// The coordinates of the physical marks on the course as recorded
@@ -217,18 +220,6 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         return layout.marks
     }
     
-    /// The maximum distance any mark is from the start flag
-    public var maximumRadius: Distance {
-        var max: Distance = 0
-        positionTargets { mark, location in
-            let d = signal.distance(to: location)
-            if d > max {
-                max = d
-            }
-        }
-        return max
-    }
-    
     /// Return the closest target to the markBoatLocation that doesn't have
     /// an existing mark within closeEnough of the target.
     public func nextTarget(from markBoatLocation: Coordinate, closeEnough: Distance, extraMark: Coordinate? = nil) -> MarkRole? {
@@ -251,6 +242,29 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
         
         return nextTarget
+    }
+    
+    /// The distance from the origin to the most distant mark
+    /// or mark target in a particular direction. This is measured as a projected distance along the
+    /// specified bearing. It is used to determine where to draw annotations on the chart so they
+    /// don't overlap marks or targets.
+    public func maximumProjectedDistance(from origin: Coordinate, bearing: Direction) -> Distance {
+        var maxDistance: Distance = 0
+        for mark in marks {
+            let angle = signal.bearing(to: mark) - bearing
+            let projectedDistance = origin.distance(to: mark) * cos(angle.degreesToRadians)
+            if projectedDistance > maxDistance {
+                maxDistance = projectedDistance
+            }
+        }
+        positionTargets { target, location in
+            let angle = signal.bearing(to: location) - bearing
+            let projectedDistance = (origin.distance(to: location) * cos(angle.degreesToRadians)) + targetRadius
+            if projectedDistance > maxDistance {
+                maxDistance = projectedDistance
+            }
+        }
+        return maxDistance
     }
 }
 
