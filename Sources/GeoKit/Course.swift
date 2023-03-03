@@ -257,11 +257,16 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
 extension Course {
     public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
                                             name: "The Frozen Few",
-                                            layoutID: Layout.digitalN.id)
+                                            layoutID: Layout.triangle.id)
     public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
-                                       name: "Opti green fleet")
+                                              name: "Opti green fleet",
+                                              layoutID: Layout.windwardLeeward.id)
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
-                                              name: "Opti red/white/blue fleet")
+                                                     name: "Opti red/white/blue fleet",
+                                                     layoutID: Layout.triangle.id)
+    public static let brownTeamRacing = Course(id: "E953D6A3-85A5-4CFE-A0B9-43EC9B37AD6B",
+                                               name: "Brown team racing",
+                                               layoutID: Layout.digitalN.id)
     
     public static let kitchenSink =
         Course(id: "307338F1-1354-4221-A617-872C26B05A40",
