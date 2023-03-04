@@ -56,14 +56,14 @@ import Foundation
 #endif
 
 extension CoordinateSpan {
-    static let zero = CoordinateSpan(latitudeDelta: 0, longitudeDelta: 0)
+    public static let zero = CoordinateSpan(latitudeDelta: 0, longitudeDelta: 0)
 }
 
 extension CoordinateRegion {
     
     /// A special region that has no center and spans no space.
     /// It can be used as an initial value to enclose other coordinates and regions.
-    static let undefined = CoordinateRegion(center: Coordinate(latitude: Degrees.nan, longitude: Degrees.nan),
+    public static let undefined = CoordinateRegion(center: Coordinate(latitude: Degrees.nan, longitude: Degrees.nan),
                                             span: CoordinateSpan(latitudeDelta: Degrees.nan, longitudeDelta: Degrees.nan))
     
     public var isUndefined: Bool {
@@ -100,7 +100,7 @@ extension CoordinateRegion {
         let maxLat = max(latitude1, latitude2)
         let maxLon = max(longitude1, longitude2)
         self = CoordinateRegion(center: Coordinate(latitude: (minLat + maxLat) / 2.0,
-                                                   longitude: (minLat + maxLat) / 2.0),
+                                                   longitude: (minLon + maxLon) / 2.0),
                                 span: CoordinateSpan(latitudeDelta: maxLat - minLat,
                                                      longitudeDelta: maxLon - minLon))
     }
