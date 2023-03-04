@@ -1,0 +1,3 @@
+#!/bin/bash
+# swift package --allow-writing-to-directory docs generate-documentation --target GeoKit --disable-indexing --output-path docs
+docker run -v $(PWD):/src --rm swift:5.7.3 /bin/sh -c 'cd /src; swift package --allow-writing-to-directory /src/docs generate-documentation --target GeoKit --disable-indexing --output-path docs'

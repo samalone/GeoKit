@@ -19,6 +19,7 @@ extension Distance {
     
     /// The average radius of the Earth in meters
     public static let earthRadius: Distance = 6372797.6
+    public static let earthMetersPerDegree: Distance = earthRadius * pi / 180.0
 }
 
 /// Wind speed in knots

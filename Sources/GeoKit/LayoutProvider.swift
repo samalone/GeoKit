@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol LayoutProvider {
+public protocol LayoutProvider {
     func findLayout(id: UUID) -> Layout?
 }
 
@@ -22,4 +22,4 @@ struct MockLayoutProvider: LayoutProvider {
     }
 }
 
-var layoutProvider = MockLayoutProvider()
+public var layoutProvider: LayoutProvider = MockLayoutProvider()
