@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Since GeoKit uses Apple types on macOS, this command will generate
+# incomplete documentation. Use the `gen` command to produce complete
+# docs using Docker.
+
+# Use `swift package plugin generate-documentation --help` for details
+
+swift package \
+    --allow-writing-to-directory docs \
+    generate-documentation \
+    --target GeoKit \
+    --disable-indexing \
+    --output-path docs \
+    --hosting-base-path /GeoKit/ \
+    --source-service github \
+    --source-service-base-url https://github.com/samalone/GeoKit/blob/main \
+    --checkout-path "$(PWD)"
