@@ -29,6 +29,8 @@ import Foundation
 
         public var x: Double
         public var y: Double
+        
+        public static let zero = Point(x: 0, y: 0)
     }
 
     extension Point: Codable, Equatable, Hashable {}
@@ -36,8 +38,6 @@ import Foundation
 #endif
 
 extension Point: Location {
-    
-    public static let zero = Point(x: 0, y: 0)
     
     public func bearing(to: Point) -> Direction {
         let dx = to.x - x
