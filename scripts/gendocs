@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# swift package --allow-writing-to-directory docs generate-documentation --target GeoKit --disable-indexing --output-path docs --hosting-base-path /GeoKit/
-
-# Since GeoKit uses Apple types on macOS, generating documentation on macOS
-# doesn't produce useful documentation. Instead, generate the documentation
-# on Linux where we define these types ourselves.
-
-docker run -v $(PWD):/src --rm swift:5.7.3 /bin/sh -c 'cd /src; swift package --allow-writing-to-directory docs generate-documentation --target GeoKit --disable-indexing --output-path docs --hosting-base-path /GeoKit/'
