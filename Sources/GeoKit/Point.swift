@@ -37,6 +37,8 @@ import Foundation
 
 extension Point: Location {
     
+    public static let zero = Point(x: 0, y: 0)
+    
     public func bearing(to: Point) -> Direction {
         let dx = to.x - x
         let dy = y - to.y

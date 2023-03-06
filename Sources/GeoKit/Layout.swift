@@ -187,19 +187,19 @@ public struct Locus: Equatable, Codable {
 }
 
 extension Array where Element == Locus {
-    public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
+    public func positionTargets<Loc: Location>(for course: Course, from startFlag: Loc,
                                                action: (MarkRole, Loc) -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
         for locus in self {
-            locus.positionTargets(for: course, from: signal, action: action, distances: distances)
+            locus.positionTargets(for: course, from: startFlag, action: action, distances: distances)
         }
     }
     
-    public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
+    public func positionTargets<Loc: Location>(for course: Course, from startFlag: Loc,
                                                action: (MarkRole, Loc) async -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) async -> ())? = nil) async {
         for locus in self {
-            await locus.positionTargets(for: course, from: signal, action: action, distances: distances)
+            await locus.positionTargets(for: course, from: startFlag, action: action, distances: distances)
         }
     }
     
@@ -245,17 +245,17 @@ public struct Layout: Identifiable, Equatable, Codable {
     }
     
     public func positionTargets(for course: Course, action: (MarkRole, Coordinate) -> ()) {
-        loci.positionTargets(for: course, from: course.signal, action: action)
+        loci.positionTargets(for: course, from: course.startFlag, action: action)
     }
     
     public func positionTargets(for course: Course, action: (MarkRole, Coordinate) async -> ()) async {
-        await loci.positionTargets(for: course, from: course.signal, action: action)
+        await loci.positionTargets(for: course, from: course.startFlag, action: action)
     }
     
-    public func positionTargets<Loc: Location>(for course: Course, from signal: Loc,
+    public func positionTargets<Loc: Location>(for course: Course, from startFlag: Loc,
                                                action: (MarkRole, Loc) -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
-        loci.positionTargets(for: course, from: signal, action: action, distances: distances)
+        loci.positionTargets(for: course, from: startFlag, action: action, distances: distances)
     }
     
     public func targetCoordinate(course: Course, target: MarkRole) -> Coordinate? {

@@ -34,3 +34,14 @@ public struct WindInformation: Equatable, Codable, Sendable {
         self.gusts = gusts
     }
 }
+
+extension Array where Element == WindInformation {
+    public func weightedAverageWindDirection(halfLife: TimeInterval) -> Direction? {
+        guard let mostRecentTime = self.map({ $0.startTime }).max() else { return nil }
+        let sum = self.reduce(Point.zero) {
+            $0.project(bearing: $1.direction,
+                       distance: 1.0 / exp2(mostRecentTime.timeIntervalSince($1.startTime) / halfLife))
+        }
+        return Point.zero.bearing(to: sum)
+    }
+}

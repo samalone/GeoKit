@@ -86,9 +86,10 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public var name: String = ""
     
     /// The location of the committee boat.
-    public var signal = Coordinate(latitude: 41.777, longitude: -71.379)
+    public var startFlag = Coordinate(latitude: 41.777, longitude: -71.379)
     
-    public var wind: WindInformation = WindInformation()
+    public var windHistory: [WindInformation] = []
+    public var windHalfLife: TimeInterval = 12.0 * 60.0
     
     /// The current orientation of the course in degrees from true north.
     public var courseDirection: Direction = 0.0
@@ -113,6 +114,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public var weatherStationId: String = WeatherStation.providenceVisibility.id
     public var layoutId: UUID = Layout.triangle.id
+    
     
     /// The length of a Sunfish sailboat in meters.
     public static let sunfishBoatLength: Distance = 4.19
@@ -177,6 +179,20 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
     }
     
+    public mutating func updateWindHistory(_ info: WindInformation) {
+        if let recent = windHistory.first {
+            if info.startTime > recent.startTime {
+                if windHistory.count >= 5 {
+                    windHistory.removeLast()
+                }
+                windHistory.insert(info, at: 0)
+            }
+        }
+        else {
+            windHistory.append(info)
+        }
+    }
+    
     /**
      Change the course to use the provided Layout.
      
@@ -200,19 +216,19 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public func positionTargets(action: (MarkRole, Coordinate) -> ()) {
         guard let layout = layout else { return }
-        layout.loci.positionTargets(for: self, from: signal, action: action)
+        layout.loci.positionTargets(for: self, from: startFlag, action: action)
     }
     
     public func positionTargets(action: (MarkRole, Coordinate) async -> ()) async {
         guard let layout = layout else { return }
-        await layout.loci.positionTargets(for: self, from: signal, action: action)
+        await layout.loci.positionTargets(for: self, from: startFlag, action: action)
     }
     
-    public func positionTargets<Loc: Location>(from signal: Loc,
+    public func positionTargets<Loc: Location>(from startFlag: Loc,
                                                action: (MarkRole, Loc) -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
         guard let layout = layout else { return }
-        layout.loci.positionTargets(for: self, from: signal, action: action, distances: distances)
+        layout.loci.positionTargets(for: self, from: startFlag, action: action, distances: distances)
     }
     
     public var targetMarks: [MarkRole] {
@@ -251,14 +267,14 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public func maximumProjectedDistance(from origin: Coordinate, bearing: Direction) -> Distance {
         var maxDistance: Distance = 0
         for mark in marks {
-            let angle = signal.bearing(to: mark) - bearing
+            let angle = startFlag.bearing(to: mark) - bearing
             let projectedDistance = origin.distance(to: mark) * cos(angle.degreesToRadians)
             if projectedDistance > maxDistance {
                 maxDistance = projectedDistance
             }
         }
         positionTargets { target, location in
-            let angle = signal.bearing(to: location) - bearing
+            let angle = startFlag.bearing(to: location) - bearing
             let projectedDistance = (origin.distance(to: location) * cos(angle.degreesToRadians)) + targetRadius
             if projectedDistance > maxDistance {
                 maxDistance = projectedDistance

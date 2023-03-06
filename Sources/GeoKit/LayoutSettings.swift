@@ -34,7 +34,7 @@ public enum FinishLinePlacement {
     case sharedWithStartLine
     
     /// On the starboard side of the committee boat
-    case starboardOfSignal
+    case starboardOfStartFlag
     
     /// Upwind of the windward mark
     case upwind
