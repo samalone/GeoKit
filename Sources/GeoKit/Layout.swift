@@ -129,6 +129,8 @@ public struct Locus: Equatable, Codable {
     /// If there should be a mark at this locus, specifications for the mark.
     public var mark: MarkRole? = nil
     
+    public var isCourseCenter: Bool = false
+    
     /// A set of child loci that are placed relative to this locus
     public var loci: [Locus] = []
     
@@ -288,6 +290,7 @@ public struct Layout: Identifiable, Equatable, Codable {
            loci: [
             Locus(bearing: -90,
                   distance: .totalBoatLengths(times: 0.75),
+                  isCourseCenter: true,
                   loci: [
                     Locus(bearing: -90,
                           distance: .totalBoatLengths(times: 0.75),
@@ -311,6 +314,7 @@ public struct Layout: Identifiable, Equatable, Codable {
            loci: [
             Locus(bearing: -90,
                   distance: .totalBoatLengths(times: 0.75),
+                  isCourseCenter: true,
                   loci: [
                     Locus(bearing: -90,
                           distance: .totalBoatLengths(times: 0.75),
@@ -343,6 +347,9 @@ public struct Layout: Identifiable, Equatable, Codable {
                                   distance: .adjustable(measurement: .offset),
                                   mark: .windwardOffset,
                                   loci: [
+                                    Locus(bearing: 180,
+                                          distance: .adjustable(measurement: .downwind, times: 0.5),
+                                          isCourseCenter: true),
                                     Locus(bearing: 180,
                                           distance: .adjustable(measurement: .downwind),
                                           mark: .leeward,

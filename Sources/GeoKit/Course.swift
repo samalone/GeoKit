@@ -145,6 +145,44 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         return Double(numberOfBoats) * Course.sunfishBoatLength * 1.5
     }
     
+    private func locateCenter<Loc: Location>(from here: Loc, using loci: [Locus]) -> Loc? {
+        for locus in loci {
+            let there = here.project(bearing: courseDirection + locus.bearing,
+                                     distance: locus.distance.compute(course: self))
+            if locus.isCourseCenter {
+                return there
+            }
+            if let center = locateCenter(from: here, using: locus.loci) {
+                return center
+            }
+        }
+        return nil
+    }
+    
+    /// The visual "center" of the race course. Wind arrows are drawn pointing toward
+    /// this center. It is helpful if there is a mark target directly upwind of this center to
+    /// make wind shifts easier to visualize.
+    public var center: Coordinate {
+        if let layout, let center = locateCenter(from: startFlag, using: layout.loci) {
+            return center
+        }
+        return startFlag
+    }
+    
+    public func forWeightedWindInformation(action: (WindInformation, Double) -> ()) {
+        if windHalfLife <= 0.0 {
+            guard let firstWindInfo = windHistory.first else { return }
+            action(firstWindInfo, 1.0)
+        }
+        else {
+            guard let mostRecentTime = windHistory.map({ $0.startTime }).max() else { return }
+            for windInfo in windHistory {
+                let weight = 1.0 / exp2(mostRecentTime.timeIntervalSince(windInfo.startTime) / windHalfLife)
+                action(windInfo, weight)
+            }
+        }
+    }
+    
     /// Remove all marks from the course.
     public mutating func pullAllMarks() {
         marks = []
