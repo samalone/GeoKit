@@ -152,7 +152,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
             if locus.isCourseCenter {
                 return there
             }
-            if let center = locateCenter(from: here, using: locus.loci) {
+            if let center = locateCenter(from: there, using: locus.loci) {
                 return center
             }
         }
@@ -330,11 +330,13 @@ extension Course {
                                               name: "Opti green fleet",
                                               layoutID: Layout.windwardLeeward.id)
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
-                                                     name: "Opti red/white/blue fleet",
+                                                     name: "Opti RWB fleet",
                                                      layoutID: Layout.triangle.id)
     public static let brownTeamRacing = Course(id: "E953D6A3-85A5-4CFE-A0B9-43EC9B37AD6B",
                                                name: "Brown team racing",
                                                layoutID: Layout.digitalN.id)
+    
+    public static let all = [theFrozenFew, optiGreenFleet, optiRedWhiteBlueFleet, brownTeamRacing]
     
     public static let kitchenSink =
         Course(id: "307338F1-1354-4221-A617-872C26B05A40",
