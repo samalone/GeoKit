@@ -13,6 +13,12 @@ import Foundation
     import CoreGraphics
 #endif
 
+public struct SliderSettings {
+    public let min: Double
+    public let max: Double
+    public let step: Double
+}
+
 public enum DistanceMeasurement: String, Codable, Sendable {
     /// The distance of the upwind leg
     case upwind
@@ -38,6 +44,31 @@ public enum DistanceMeasurement: String, Codable, Sendable {
     
     /// The length of the finish line
     case finishLine
+    
+    static let largeMeterSlider = SliderSettings(min: 100, max: 300, step: 25)
+    static let largeFootSlider = SliderSettings(min: 300, max: 900, step: 75)
+    
+    static let smallMeterSlider = SliderSettings(min: 30, max: 100, step: 10)
+    static let smallFootSlider = SliderSettings(min: 100, max: 300, step: 25)
+    
+    public func sliderSettings(for unit: DistanceUnit) -> SliderSettings {
+        switch self {
+        case .upwind, .downwind, .width, .start, .finish:
+            switch unit {
+            case .meters, .yards:
+                return Self.largeMeterSlider
+            case .feet:
+                return Self.largeFootSlider
+            }
+        case .offset, .gate, .finishLine:
+            switch unit {
+            case .meters, .yards:
+                return Self.smallMeterSlider
+            case .feet:
+                return Self.smallFootSlider
+            }
+        }
+    }
 }
 
 extension DistanceMeasurement: Identifiable {

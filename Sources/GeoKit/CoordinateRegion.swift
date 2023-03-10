@@ -132,4 +132,24 @@ extension CoordinateRegion {
     public mutating func enclose(_ region: CoordinateRegion) {
         self = self.enclosing(region)
     }
+    
+    public func scaled(by factor: Double) -> CoordinateRegion {
+        CoordinateRegion(center: center,
+                         span: CoordinateSpan(latitudeDelta: span.latitudeDelta * factor,
+                                              longitudeDelta: span.longitudeDelta * factor))
+    }
+    
+    public mutating func scale(by factor: Double) {
+        self = self.scaled(by: factor)
+    }
+}
+
+extension CoordinateRegion: Equatable {
+    public static func == (lhs: MKCoordinateRegion, rhs: MKCoordinateRegion) -> Bool {
+        let delta = 0.00001
+        return (abs(lhs.center.latitude - rhs.center.latitude) < delta) &&
+        (abs(lhs.center.longitude - rhs.center.longitude) < delta) &&
+        (abs(lhs.span.latitudeDelta - rhs.span.latitudeDelta) < delta) &&
+        (abs(lhs.span.longitudeDelta - rhs.span.longitudeDelta) < delta)
+    }
 }
