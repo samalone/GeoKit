@@ -88,6 +88,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     /// The location of the committee boat.
     public var startFlag = Coordinate(latitude: 41.777, longitude: -71.379)
     
+    /// The location of the finish flag, if the finish boat has anchored.
+    public var finishFlag: Coordinate? = nil
+    
     public var windHistory: [WindInformation] = []
     public var windHalfLife: TimeInterval = 12.0 * 60.0
     
@@ -183,8 +186,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
     }
     
-    /// Remove all marks from the course.
+    /// Remove all marks from the course, including the finishFlag
     public mutating func pullAllMarks() {
+        finishFlag = nil
         marks = []
     }
     
@@ -275,7 +279,8 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     }
     
     /// Return the closest target to the markBoatLocation that doesn't have
-    /// an existing mark within closeEnough of the target.
+    /// an existing mark within closeEnough of the target. Note that the finishFlag
+    /// is excluded.
     public func nextTarget(from markBoatLocation: Coordinate, closeEnough: Distance, extraMark: Coordinate? = nil) -> MarkRole? {
         var nextTarget: MarkRole? = nil
         var nextMarkDistance = Distance.infinity
@@ -286,7 +291,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
         
         positionTargets { target, targetLocation in
-            if !marks.contains(where: { $0.distance(to: targetLocation) <= closeEnough}) {
+            if target.isMark && !marks.contains(where: { $0.distance(to: targetLocation) <= closeEnough}) {
                 let d = markBoatLocation.distance(to: targetLocation)
                 if d < nextMarkDistance {
                     nextTarget = target
@@ -328,11 +333,13 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         var nearestTargetLocation: Coordinate = Coordinate(latitude: 0, longitude: 0)
         var nearestTargetDistance = Distance.infinity
         positionTargets { role, location in
-            let d = mark.distance(to: location)
-            if d < nearestTargetDistance {
-                nearestTarget = role
-                nearestTargetLocation = location
-                nearestTargetDistance = d
+            if role.isMark {
+                let d = mark.distance(to: location)
+                if d < nearestTargetDistance {
+                    nearestTarget = role
+                    nearestTargetLocation = location
+                    nearestTargetDistance = d
+                }
             }
         }
         guard let nearestTarget else { return nil }

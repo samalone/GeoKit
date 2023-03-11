@@ -40,6 +40,14 @@ public enum MarkRole: Codable, CaseIterable {
     /// which can change role over time as the wind shifts. Layouts should always use
     /// more specific roles for their targets.
     case genericMark
+    
+    public var isFlag: Bool {
+        (self == .startFlag) || (self == .finishFlag)
+    }
+    
+    public var isMark: Bool {
+        !isFlag
+    }
 }
 
 extension MarkRole: Identifiable {
