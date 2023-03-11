@@ -76,6 +76,11 @@ public struct Distances: Codable, Sendable, Equatable {
     }
 }
 
+public struct TargetLocation {
+    public var role: MarkRole
+    public var location: Coordinate
+}
+
 /**
  The complete state information for a race course, including location of marks,
  target areas for marks, wind direction, and wind speed.
@@ -326,9 +331,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         return maxDistance
     }
     
-    /// Returns the nearest target to a mark, as long as the mark is also the nearest
-    /// mark to the target. Returns nil if there is no paired target.
-    public func pairedTarget(for mark: Coordinate) -> MarkRole? {
+    public func nearestTarget(to mark: Coordinate) -> TargetLocation? {
         var nearestTarget: MarkRole? = nil
         var nearestTargetLocation: Coordinate = Coordinate(latitude: 0, longitude: 0)
         var nearestTargetDistance = Distance.infinity
@@ -343,19 +346,62 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
             }
         }
         guard let nearestTarget else { return nil }
+        return TargetLocation(role: nearestTarget, location: nearestTargetLocation)
+    }
+    
+    public func nearestMark(to target: Coordinate) -> Coordinate? {
         var nearestMark: Coordinate? = nil
         var nearestMarkDistance = Distance.infinity
         for m in marks {
-            let d = nearestTargetLocation.distance(to: m)
+            let d = target.distance(to: m)
             if d < nearestMarkDistance {
                 nearestMark = m
                 nearestMarkDistance = d
             }
         }
+        return nearestMark
+    }
+    
+    /// Returns the nearest target to a mark, as long as the mark is also the nearest
+    /// mark to the target. Returns nil if there is no paired target.
+    public func currentRole(for mark: Coordinate) -> MarkRole {
+        guard let nearestTarget = nearestTarget(to: mark) else { return .genericMark }
+        guard let nearestMark = nearestMark(to: nearestTarget.location) else { return .genericMark }
         if nearestMark == mark {
-            return nearestTarget
+            return nearestTarget.role
+        }
+        return .genericMark
+    }
+    
+    /// Returns the mark currently filling the specified role, if there is one.
+    public func markFilling(role: MarkRole) -> Coordinate? {
+        guard let targetLocation = self.targetCoordinate(target: role) else { return nil }
+        guard let nearestMark = nearestMark(to: targetLocation) else { return nil }
+        if currentRole(for: nearestMark) == role {
+            return nearestMark
         }
         return nil
+    }
+    
+    public var enclosingRegion: CoordinateRegion {
+        var rgn = CoordinateRegion.undefined
+        rgn.enclose(startFlag)
+        if let finishFlag {
+            rgn.enclose(finishFlag)
+        }
+        
+        positionTargets { target, location in
+            let targetArea = CoordinateRegion(center: location,
+                                              latitudinalMeters: targetRadius,
+                                              longitudinalMeters: targetRadius)
+            rgn.enclose(targetArea)
+        }
+        
+        for mark in marks {
+            rgn.enclose(mark)
+        }
+
+        return rgn
     }
 }
 
