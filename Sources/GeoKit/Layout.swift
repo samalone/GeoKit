@@ -105,41 +105,6 @@ extension DistanceCalculation {
     }
 }
 
-
-public enum MarkRole: Codable, CaseIterable {
-    /// The committee boat end of the start line, usually marked with an orange flag.
-    case startFlag
-    
-    /// The pin end of the start line
-    case startPin
-    
-    /// The committee boat end of the finish line, usually marked with a blue flag.
-    case finishFlag
-    
-    /// The pin end of the finish line
-    case finishPin
-    
-    case windward
-    
-    case windwardOffset
-    
-    case leeward
-    
-    case leewardOffset
-    
-    case leewardGateLeft
-    case leewardGateRight
-    
-    case jibe
-    
-    case windwardJibe
-    case leewardJibe
-}
-
-extension MarkRole: Identifiable {
-    public var id: MarkRole { self }
-}
-
 /**
  A Locus is an interesting point on the race course.
  Sometimes there will be a mark at the locus, but other times
