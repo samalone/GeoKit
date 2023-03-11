@@ -106,7 +106,7 @@ extension DistanceCalculation {
 }
 
 
-public enum MarkRole: Codable {
+public enum MarkRole: Codable, CaseIterable {
     /// The committee boat end of the start line, usually marked with an orange flag.
     case startFlag
     

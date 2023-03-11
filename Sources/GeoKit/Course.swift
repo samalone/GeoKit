@@ -320,6 +320,36 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
         return maxDistance
     }
+    
+    /// Returns the nearest target to a mark, as long as the mark is also the nearest
+    /// mark to the target. Returns nil if there is no paired target.
+    public func pairedTarget(for mark: Coordinate) -> MarkRole? {
+        var nearestTarget: MarkRole? = nil
+        var nearestTargetLocation: Coordinate = Coordinate(latitude: 0, longitude: 0)
+        var nearestTargetDistance = Distance.infinity
+        positionTargets { role, location in
+            let d = mark.distance(to: location)
+            if d < nearestTargetDistance {
+                nearestTarget = role
+                nearestTargetLocation = location
+                nearestTargetDistance = d
+            }
+        }
+        guard let nearestTarget else { return nil }
+        var nearestMark: Coordinate? = nil
+        var nearestMarkDistance = Distance.infinity
+        for m in marks {
+            let d = nearestTargetLocation.distance(to: m)
+            if d < nearestMarkDistance {
+                nearestMark = m
+                nearestMarkDistance = d
+            }
+        }
+        if nearestMark == mark {
+            return nearestTarget
+        }
+        return nil
+    }
 }
 
 extension Course {
