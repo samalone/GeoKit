@@ -224,13 +224,18 @@ public struct Layout: Identifiable, Equatable, Codable {
     /// A longer description of this course layout.
     public var description: String = ""
     
+    /// The number of boat lengths for the zone.
+    /// 2 for team racing, 3 for others.
+    public var zoneSize: Int = 3
+    
     /// The loci that are positioned relative to the committee boat.
     public var loci: [Locus]
     
-    public init(id: UUID, name: String, description: String = "", loci: [Locus]) {
+    public init(id: UUID, name: String, description: String = "", zoneSize: Int = 3, loci: [Locus]) {
         self.id = id
         self.name = name
         self.description = description
+        self.zoneSize = zoneSize
         self.loci = loci
     }
     
@@ -283,6 +288,7 @@ public struct Layout: Identifiable, Equatable, Codable {
     Layout(id: UUID(uuidString: "EF24BF8B-E5B9-4E7A-9E47-46E8CED73E79")!,
            name: "Triangle",
            description: "A simple triangle course with a combined start/finish line in the middle of the course.",
+           zoneSize: 3,
            loci: [
             Locus(bearing: -90,
                   distance: .totalBoatLengths(times: 0.75),
@@ -307,6 +313,7 @@ public struct Layout: Identifiable, Equatable, Codable {
     Layout(id: UUID(uuidString: "3538DD08-F2A2-489F-957F-FE429684CDD0")!,
            name: "Windward/Leeward",
            description: "A simple windward/leeward course with a combined start/finish line in the middle of the course.",
+           zoneSize: 3,
            loci: [
             Locus(bearing: -90,
                   distance: .totalBoatLengths(times: 0.75),
@@ -328,6 +335,7 @@ public struct Layout: Identifiable, Equatable, Codable {
     Layout(id: UUID(uuidString: "3BBDCF10-E106-402E-A236-E42F15BF858A")!,
            name: "Digital N",
            description: "An upwind/downwind course with offsets and a separate finish line, used for team racing.",
+           zoneSize: 2,
            loci: [
             Locus(bearing: -90,
                   distance: .totalBoatLengths(times: 0.75),

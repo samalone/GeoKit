@@ -112,7 +112,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public var boatLength: Distance = sunfishBoatLength
     
     /// The size of each target area on the chart
-    public var targetRadius: Distance = 15.0
+    public var targetRadius: Distance = 10.0
     
     public var distances = Distances()
     
@@ -138,10 +138,14 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         self.layoutId = layoutID
     }
     
-    public init(id: String, name: String = "", layoutID: UUID = Layout.triangle.id) {
+    public init(id: String,
+                name: String = "",
+                boatLength: Distance = sunfishBoatLength,
+                layoutID: UUID = Layout.triangle.id) {
         self.id = UUID(uuidString: id)!
         self.name = name
         self.layoutId = layoutID
+        self.boatLength = boatLength
     }
     
     public var layout: Layout? {
@@ -151,6 +155,10 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     /// The calculated length of the start line based on the number of boats.
     public var lengthOfStartLine: Distance {
         return Double(numberOfBoats) * Course.sunfishBoatLength * 1.5
+    }
+    
+    public var zoneRadius: Distance {
+        return Double(layout?.zoneSize ?? 3) * boatLength
     }
     
     private func locateCenter<Loc: Location>(from here: Loc, using loci: [Locus]) -> Loc? {
@@ -383,6 +391,16 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         return nil
     }
     
+    public func anyMarkWithinTargetRadius(of target: Coordinate, with role: MarkRole) -> Bool {
+        if role == .finishFlag {
+            guard let finishFlag else { return false }
+            return finishFlag.distance(to: target) <= targetRadius
+        }
+        else {
+            return marks.contains { $0.distance(to: target) <= targetRadius }
+        }
+    }
+    
     public var enclosingRegion: CoordinateRegion {
         var rgn = CoordinateRegion.undefined
         rgn.enclose(startFlag)
@@ -417,6 +435,7 @@ extension Course {
                                                      layoutID: Layout.triangle.id)
     public static let brownTeamRacing = Course(id: "E953D6A3-85A5-4CFE-A0B9-43EC9B37AD6B",
                                                name: "Brown team racing",
+                                               boatLength: 4.2164,
                                                layoutID: Layout.digitalN.id)
     
     public static let all = [theFrozenFew, optiGreenFleet, optiRedWhiteBlueFleet, brownTeamRacing]
