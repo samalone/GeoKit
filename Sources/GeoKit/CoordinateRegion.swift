@@ -145,7 +145,7 @@ extension CoordinateRegion {
 }
 
 extension CoordinateRegion: Equatable {
-    public static func == (lhs: MKCoordinateRegion, rhs: MKCoordinateRegion) -> Bool {
+    public static func == (lhs: CoordinateRegion, rhs: CoordinateRegion) -> Bool {
         let delta = 0.00001
         return (abs(lhs.center.latitude - rhs.center.latitude) < delta) &&
         (abs(lhs.center.longitude - rhs.center.longitude) < delta) &&
