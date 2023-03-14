@@ -234,18 +234,8 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
     }
     
-    public mutating func updateWindHistory(_ info: WindInformation) {
-        if let recent = windHistory.first {
-            if info.startTime > recent.startTime {
-                if windHistory.count >= 5 {
-                    windHistory.removeLast()
-                }
-                windHistory.insert(info, at: 0)
-            }
-        }
-        else {
-            windHistory.append(info)
-        }
+    public mutating func updateWindHistory(_ newHistory: [WindInformation]) {
+        windHistory = newHistory
     }
     
     /**
