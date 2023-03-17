@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum CourseShape: String, CaseIterable {
+public enum CourseShape: String, CaseIterable, Codable, Sendable {
     /// No jibe mark (windward/leeward course)
     case windwardLeeward
     
@@ -25,7 +25,7 @@ extension CourseShape: Identifiable {
     public var id: CourseShape { self }
 }
 
-public enum StartLinePlacement: String, CaseIterable {
+public enum StartLinePlacement: String, CaseIterable, Codable, Sendable {
     /// Between the wind and leeward marks
     case midCourse
     
@@ -40,7 +40,7 @@ extension StartLinePlacement: Identifiable {
     public var id: StartLinePlacement { self }
 }
 
-public enum FinishLinePlacement: String, CaseIterable {
+public enum FinishLinePlacement: String, CaseIterable, Codable, Sendable {
     /// The start line is also the finish line
     case sharedWithStartLine
     
@@ -62,7 +62,7 @@ extension FinishLinePlacement: Identifiable {
     public var id: FinishLinePlacement { self }
 }
 
-public enum WindMarkOption: String, CaseIterable {
+public enum WindMarkOption: String, CaseIterable, Codable, Sendable {
     case singleMark
     case markAndOffset
 }
@@ -71,7 +71,7 @@ extension WindMarkOption: Identifiable {
     public var id: WindMarkOption { self }
 }
 
-public enum LeewardMarkOption: String, CaseIterable {
+public enum LeewardMarkOption: String, CaseIterable, Codable, Sendable {
     case singleMark
     
     case gate
@@ -117,7 +117,7 @@ extension Array {
 /// generate a tree of Locus objects that describe in polar coordinates where the marks should go.
 /// These loci are lower-level and more powerful than LayoutSettings, but they are
 /// too abstract for most users to interact with directly.
-public struct LayoutSettings {
+public struct LayoutSettings: Equatable, Codable, Sendable {
     public var shape: CourseShape = .triangle {
         didSet { updateStart() }
     }
@@ -412,7 +412,7 @@ public struct LayoutSettings {
     /// A reasonable set of starting Distances for this course layout.
     /// This can be used as starting values for a course, or just to
     /// display a representative layout to the user.
-    var sampleDistances: Distances {
+    public var sampleDistances: Distances {
         switch shape {
         case .windwardLeeward, .triangle, .trapezoid:
             return Distances()
@@ -420,6 +420,36 @@ public struct LayoutSettings {
             return Distances(upwind: 200, downwind: 200, offset: 80, start: 200, finish: 200)
         }
     }
+    
+    
+    /// Return the distance measurements that are actually used in the layout
+    public var usedMeasurements: [DistanceMeasurement] {
+        var names: [DistanceMeasurement] = []
+        for locus in loci {
+            locus.forEachDistanceMeasurement {
+                if !names.contains($0) {
+                    names.append($0)
+                }
+            }
+        }
+        return names
+    }
+    
+    /// A simple triangle course with the start line mid-course
+    public static let triangleCenterStart = LayoutSettings(shape: .triangle, start: .midCourse, finish: .sharedWithStartLine,
+                                                           wind: .singleMark, lee: .singleMark)
+    
+    /// A windward-leeward course with separate start and finish lines mid-course, a windward offset, and a leeward gate.
+    public static let windwardLeewardSimple = LayoutSettings(shape: .windwardLeeward, start: .midCourse, finish: .starboardOfStartFlag,
+                                                             wind: .markAndOffset, lee: .gate)
+    
+    /// A windward-leeward course with separate start and finish lines mid-course, a windward offset, and a leeward gate.
+    public static let windwardLeewardFancy = LayoutSettings(shape: .windwardLeeward, start: .midCourse, finish: .starboardOfStartFlag,
+                                                            wind: .markAndOffset, lee: .gate)
+    
+    /// The Digital N course used in team racing
+    public static let digitalN = LayoutSettings(shape: .digitalN, start: .downwind, finish: .upwind,
+                                                wind: .markAndOffset, lee: .markAndOffset)
     
     
     

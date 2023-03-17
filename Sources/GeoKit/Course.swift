@@ -116,6 +116,10 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public var boatLength: Distance = sunfishBoatLength
     
+    /// The size of the zone in boat lengths. Usually 2 for team racing and
+    /// 3 otherwise.
+    public var zoneSize: Int = 3
+    
     /// The size of each target area on the chart
     public var targetRadius: Distance = 10.0
     
@@ -126,8 +130,15 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public var marks: [Coordinate] = []
     
     public var weatherStationId: String = WeatherStation.providenceVisibility.id
-    public var layoutId: UUID = Layout.triangle.id
-    
+    public var layout: LayoutSettings {
+        didSet {
+            if layout.shape == .digitalN {
+                let avg = (distances.upwind + distances.downwind) / 2.0
+                distances.start = avg
+                distances.finish = avg
+            }
+        }
+    }
     
     /// The length of a Sunfish sailboat in meters.
     public static let sunfishBoatLength: Distance = 4.19
@@ -135,26 +146,25 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     /// Creates a course with default settings for the Providence River
     /// near Edgewood Yacht Club.
     public init() {
+        self.layout = .triangleCenterStart
     }
     
-    public init(id: UUID, name: String = "", layoutID: UUID = Layout.triangle.id) {
+    public init(id: UUID, name: String = "", layout: LayoutSettings = .triangleCenterStart) {
         self.id = id
         self.name = name
-        self.layoutId = layoutID
+        self.layout = layout
+        self.distances = layout.sampleDistances
     }
     
     public init(id: String,
                 name: String = "",
                 boatLength: Distance = sunfishBoatLength,
-                layoutID: UUID = Layout.triangle.id) {
+                layout: LayoutSettings = .triangleCenterStart) {
         self.id = UUID(uuidString: id)!
         self.name = name
-        self.layoutId = layoutID
+        self.layout = layout
         self.boatLength = boatLength
-    }
-    
-    public var layout: Layout? {
-        return layoutProvider.findLayout(id: layoutId)
+        self.distances = layout.sampleDistances
     }
     
     /// The calculated length of the start line based on the number of boats.
@@ -163,7 +173,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     }
     
     public var zoneRadius: Distance {
-        return Double(layout?.zoneSize ?? 3) * boatLength
+        return Double(zoneSize) * boatLength
     }
     
     private func locateCenter<Loc: Location>(from here: Loc, using loci: [Locus]) -> Loc? {
@@ -184,7 +194,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     /// this center. It is helpful if there is a mark target directly upwind of this center to
     /// make wind shifts easier to visualize.
     public var center: Coordinate {
-        if let layout, let center = locateCenter(from: startFlag, using: layout.loci) {
+        if let center = locateCenter(from: startFlag, using: layout.loci) {
             return center
         }
         return startFlag
@@ -243,20 +253,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         windHistory = newHistory
     }
     
-    /**
-     Change the course to use the provided Layout.
-     
-     This updates the layoutId and ensures that the course distances
-     match the ones in the layout.
-     */
-    public mutating func changeLayout(to layout: Layout) {
-        layoutId = layout.id
-    }
-    
     public func targetCoordinate(target: MarkRole) -> Coordinate? {
-        guard let layout else { return nil }
         var coord: Coordinate? = nil
-        layout.positionTargets(for: self) { mark, location in
+        layout.loci.positionTargets(for: self, from: startFlag) { mark, location in
             if mark == target {
                 coord = location
             }
@@ -265,25 +264,25 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     }
     
     public func positionTargets(action: (MarkRole, Coordinate) -> ()) {
-        guard let layout = layout else { return }
         layout.loci.positionTargets(for: self, from: startFlag, action: action)
     }
     
     public func positionTargets(action: (MarkRole, Coordinate) async -> ()) async {
-        guard let layout = layout else { return }
         await layout.loci.positionTargets(for: self, from: startFlag, action: action)
     }
     
     public func positionTargets<Loc: Location>(from startFlag: Loc,
                                                action: (MarkRole, Loc) -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
-        guard let layout = layout else { return }
         layout.loci.positionTargets(for: self, from: startFlag, action: action, distances: distances)
     }
     
     public var targetMarks: [MarkRole] {
-        guard let layout else { return [] }
-        return layout.marks
+        var result: [MarkRole] = []
+        for locus in layout.loci {
+            locus.forEachMark { result.append($0) }
+        }
+        return result
     }
     
     /// Return the closest target to the markBoatLocation that doesn't have
@@ -421,17 +420,17 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
 extension Course {
     public static let theFrozenFew = Course(id: "D4F19F6C-CCC4-4BB8-A376-368671E5C7ED",
                                             name: "The Frozen Few",
-                                            layoutID: Layout.triangle.id)
+                                            layout: .triangleCenterStart)
     public static let optiGreenFleet = Course(id: "E3F4B122-F068-4FAB-9FDD-6996CC1938F6",
                                               name: "Opti green fleet",
-                                              layoutID: Layout.windwardLeeward.id)
+                                              layout: .windwardLeewardSimple)
     public static let optiRedWhiteBlueFleet = Course(id: "8E5934D8-7EB4-4AA9-8ECD-8589C0F3ABB2",
                                                      name: "Opti RWB fleet",
-                                                     layoutID: Layout.triangle.id)
+                                                     layout: .windwardLeewardFancy)
     public static let brownTeamRacing = Course(id: "E953D6A3-85A5-4CFE-A0B9-43EC9B37AD6B",
                                                name: "Brown team racing",
                                                boatLength: 4.2164,
-                                               layoutID: Layout.digitalN.id)
+                                               layout: .digitalN)
     
     public static let all = [theFrozenFew, optiGreenFleet, optiRedWhiteBlueFleet, brownTeamRacing]
     
