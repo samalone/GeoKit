@@ -31,6 +31,7 @@ public struct Distances: Codable, Sendable, Equatable {
     public var start: Distance = 100
     public var finish: Distance = 100
     public var finishLine: Distance = 40
+    public var trapezoidDownwind: Distance = 200
     
     public subscript(key: DistanceMeasurement) -> Distance {
         get {
@@ -51,6 +52,8 @@ public struct Distances: Codable, Sendable, Equatable {
                 return finish
             case .finishLine:
                 return finishLine
+            case .trapezoidDownwind:
+                return trapezoidDownwind
             }
         }
         set {
@@ -71,6 +74,8 @@ public struct Distances: Codable, Sendable, Equatable {
                 finish = newValue
             case .finishLine:
                 finishLine = newValue
+            case .trapezoidDownwind:
+                trapezoidDownwind = newValue
             }
         }
     }
