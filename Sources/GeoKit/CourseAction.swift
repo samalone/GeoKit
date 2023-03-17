@@ -43,4 +43,7 @@ public enum CourseAction: Int16, RawRepresentable, Codable, Sendable {
     
     /// Set the number of seconds for wind averaging. [Double]
     case setWindHalfLife = 11
+    
+    /// Set the layout of the course. [Layout]
+    case setLayout = 12
 }

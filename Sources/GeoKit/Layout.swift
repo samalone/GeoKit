@@ -117,7 +117,7 @@ extension Array {
 /// generate a tree of Locus objects that describe in polar coordinates where the marks should go.
 /// These loci are lower-level and more powerful than Layouts, but they are
 /// too abstract for most users to interact with directly.
-public struct Layout: Equatable, Codable, Sendable {
+public struct Layout: Equatable, Hashable, Codable, Sendable {
     public var shape: CourseShape = .triangle {
         didSet { updateStart() }
     }
