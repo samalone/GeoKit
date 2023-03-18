@@ -140,6 +140,9 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         }
     }
     
+    public var canUndo: Bool = false
+    public var canRedo: Bool = false
+    
     /// The length of a Sunfish sailboat in meters.
     public static let sunfishBoatLength: Distance = 4.19
     
@@ -251,6 +254,13 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     
     public mutating func updateWindHistory(_ newHistory: [WindInformation]) {
         windHistory = newHistory
+    }
+    
+    public mutating func updateCourseDirectionFromWind() {
+        guard !isCourseDirectionLocked else { return }
+        if let windDirection = windHistory.weightedAverageWindDirection(halfLife: windHalfLife) {
+            courseDirection = windDirection
+        }
     }
     
     public func targetCoordinate(target: MarkRole) -> Coordinate? {

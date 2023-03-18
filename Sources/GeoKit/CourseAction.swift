@@ -46,4 +46,10 @@ public enum CourseAction: Int16, RawRepresentable, Codable, Sendable {
     
     /// Set the layout of the course. [Layout]
     case setLayout = 12
+    
+    /// Undo the previous manual change to the course.
+    case undo = 13
+    
+    /// Redo the previous undone action
+    case redo = 14
 }
