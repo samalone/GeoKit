@@ -34,11 +34,11 @@ public struct Locus: Equatable, Codable {
     /// A set of child loci that are placed relative to this locus
     public var loci: [Locus] = []
     
-    public func positionTargets<Loc: Location>(for course: Course, from location: Loc,
+    public func positionTargets<Loc: Location>(for state: CourseState, from location: Loc,
                                                action: (MarkRole, Loc) -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) -> ())?) {
-        let here = location.project(bearing: course.courseDirection + bearing,
-                                    distance: distance.compute(course: course))
+        let here = location.project(bearing: state.courseDirection + bearing,
+                                    distance: distance.compute(course: state.course))
         if let distances {
             distances(distance, location, here)
         }
@@ -46,15 +46,15 @@ public struct Locus: Equatable, Codable {
             action(mark, here)
         }
         for locus in loci {
-            locus.positionTargets(for: course, from: here, action: action, distances: distances)
+            locus.positionTargets(for: state, from: here, action: action, distances: distances)
         }
     }
     
-    public func positionTargets<Loc: Location>(for course: Course, from location: Loc,
+    public func positionTargets<Loc: Location>(for state: CourseState, from location: Loc,
                                                action: (MarkRole, Loc) async -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) async -> ())?) async {
-        let here = location.project(bearing: course.courseDirection + bearing,
-                                    distance: distance.compute(course: course))
+        let here = location.project(bearing: state.courseDirection + bearing,
+                                    distance: distance.compute(course: state.course))
         if let distances {
             await distances(distance, location, here)
         }
@@ -62,7 +62,7 @@ public struct Locus: Equatable, Codable {
             await action(mark, here)
         }
         for locus in loci {
-            await locus.positionTargets(for: course, from: here, action: action, distances: distances)
+            await locus.positionTargets(for: state, from: here, action: action, distances: distances)
         }
     }
     
@@ -89,19 +89,19 @@ public struct Locus: Equatable, Codable {
 }
 
 extension Array where Element == Locus {
-    public func positionTargets<Loc: Location>(for course: Course, from startFlag: Loc,
+    public func positionTargets<Loc: Location>(for state: CourseState, from startFlag: Loc,
                                                action: (MarkRole, Loc) -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) -> ())? = nil) {
         for locus in self {
-            locus.positionTargets(for: course, from: startFlag, action: action, distances: distances)
+            locus.positionTargets(for: state, from: startFlag, action: action, distances: distances)
         }
     }
     
-    public func positionTargets<Loc: Location>(for course: Course, from startFlag: Loc,
+    public func positionTargets<Loc: Location>(for state: CourseState, from startFlag: Loc,
                                                action: (MarkRole, Loc) async -> (),
                                                distances: ((DistanceCalculation, Loc, Loc) async -> ())? = nil) async {
         for locus in self {
-            await locus.positionTargets(for: course, from: startFlag, action: action, distances: distances)
+            await locus.positionTargets(for: state, from: startFlag, action: action, distances: distances)
         }
     }
     

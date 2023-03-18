@@ -12,10 +12,10 @@ public enum CourseAction: Int16, RawRepresentable, Codable, Sendable {
     case reset = 0
     
     /// Set the direction of the course. [Direction]
-    case setCourseDirection = 1
+    case lockCourseDirection = 1
     
-    /// Set whether the course direction is locked. [Bool]
-    case setIsCourseDirectionLocked = 2
+    /// Let the course direction vary with the wind.
+    case unlockCourseDirection = 2
     
     /// Set the number of boats racing. [Int]
     case setNumberOfBoats = 3
