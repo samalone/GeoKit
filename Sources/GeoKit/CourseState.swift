@@ -202,6 +202,21 @@ public struct CourseState: Codable, Sendable {
 
         return rgn
     }
+    
+    public mutating func dropRandomMarks() {
+        course.pullAllMarks()
+        positionTargets(from: course.startFlag) { role, location in
+            let bearing = Double.random(in: 0.0 ..< 360.0)
+            let distance = Double.random(in: 0.0 ..< course.targetRadius)
+            let dropLoc = location.project(bearing: bearing, distance: distance)
+            if role == .finishFlag {
+                course.finishFlag = dropLoc
+            }
+            else {
+                course.dropMark(at: dropLoc)
+            }
+        }
+    }
 }
 
 extension CourseState: Identifiable {

@@ -52,4 +52,7 @@ public enum CourseAction: Int16, RawRepresentable, Codable, Sendable {
     
     /// Redo the previous undone action
     case redo = 14
+    
+    /// Drop random marks (for testing)
+    case dropRandomMarks = 15
 }
