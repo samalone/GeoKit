@@ -55,4 +55,13 @@ public enum CourseAction: Int16, RawRepresentable, Codable, Sendable {
     
     /// Drop random marks (for testing)
     case dropRandomMarks = 15
+    
+    /// Set the number of boat lengths for the zone (2 or 3). [Int]
+    case setZoneSize = 16
+    
+    /// Set the target radius in meters. [Double]
+    case setTargetRadius = 17
+    
+    /// Set the boat length in meters. [Double]
+    case setBoatLength = 18
 }
