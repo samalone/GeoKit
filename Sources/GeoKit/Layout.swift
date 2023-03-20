@@ -464,6 +464,12 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
         }
     }
     
+    public var sampleCourseState: CourseState {
+        var state = CourseState(.theFrozenFew)
+        state.course.layout = self
+        state.course.distances = sampleDistances
+        return state
+    }
     
     /// Return the distance measurements that are actually used in the layout
     public var usedMeasurements: [DistanceMeasurement] {
