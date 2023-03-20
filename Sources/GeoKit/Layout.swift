@@ -269,24 +269,32 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
         // is positioned relative to the course
         let bearing: Direction
         let distance: DistanceCalculation
+        let extraLocus: Locus?
         
         switch start {
         case .midCourse:
             bearing = 180
             distance = .adjustable(measurement: .downwind)
+            extraLocus = nil
         case .atLeewardMark:
             bearing = -90
             distance = .totalBoatLengths(times: 0.75)
+            extraLocus = nil
         case .downwind:
             bearing = 0
             distance = .adjustable(measurement: .start)
+            extraLocus = Locus(bearing: 0,
+                  distance: .adjustable(measurement: .downwind),
+                  isCourseCenter: true,
+                  loci: [windMarkLocus].plus(jibeMarkLocus))
         }
         
         switch lee {
         case .singleMark:
             return Locus(bearing: bearing,
                          distance: distance,
-                         mark: .leeward)
+                         mark: .leeward,
+                         loci: [].plus(extraLocus))
         case .gate:
             return Locus(bearing: bearing,
                          distance: distance,
@@ -297,7 +305,7 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
                             Locus(bearing: -90,
                                   distance: .adjustable(measurement: .gate, times: 0.5),
                                   mark: .leewardGateRight)
-                         ])
+                         ].plus(extraLocus))
         case .markAndOffset:
             // Note that in practice this case is never used, since .markAndOffset
             // is only available when shape == .digitalN, and that course is
@@ -309,7 +317,7 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
                             Locus(bearing: 90,
                                   distance: .adjustable(measurement: .offset),
                                   mark: .leewardOffset)
-                         ])
+                         ].plus(extraLocus))
         }
     }
     
@@ -437,16 +445,7 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
                 Locus(bearing: -90,
                       distance: .totalBoatLengths(times: 0.75),
                       loci: [
-                        leewardMarkLocus,
-                        Locus(bearing: 0,
-                              distance: .adjustable(measurement: .start),
-                              loci: [
-                                leewardMarkLocus,
-                                Locus(bearing: 0,
-                                      distance: .adjustable(measurement: .downwind),
-                                      isCourseCenter: true,
-                                      loci: [windMarkLocus].plus(jibeMarkLocus))
-                              ])
+                        leewardMarkLocus
                       ])
             ].plus(startFlagRelativeLoci)
         }
