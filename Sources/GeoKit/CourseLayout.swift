@@ -117,7 +117,7 @@ extension Array {
 /// generate a tree of Locus objects that describe in polar coordinates where the marks should go.
 /// These loci are lower-level and more powerful than Layouts, but they are
 /// too abstract for most users to interact with directly.
-public struct Layout: Equatable, Hashable, Codable, Sendable {
+public struct CourseLayout: Equatable, Hashable, Codable, Sendable {
     public var shape: CourseShape = .triangle {
         didSet { updateStart() }
     }
@@ -404,7 +404,7 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
         // The Digital N course is such a special case that we just hard-wire
         // the loci and don't allow the user to change any other settings.
         guard shape != .digitalN else {
-            return Layout.digitalNLoci
+            return CourseLayout.digitalNLoci
         }
         
         // IMPORTANT: Since Locus is a struct rather than a class, all of the
@@ -484,19 +484,19 @@ public struct Layout: Equatable, Hashable, Codable, Sendable {
     }
     
     /// A simple triangle course with the start line mid-course
-    public static let triangleCenterStart = Layout(shape: .triangle, start: .midCourse, finish: .sharedWithStartLine,
+    public static let triangleCenterStart = CourseLayout(shape: .triangle, start: .midCourse, finish: .sharedWithStartLine,
                                                            wind: .singleMark, lee: .singleMark)
     
     /// A windward-leeward course with separate start and finish lines mid-course, a windward offset, and a leeward gate.
-    public static let windwardLeewardSimple = Layout(shape: .windwardLeeward, start: .midCourse, finish: .starboardOfStartFlag,
+    public static let windwardLeewardSimple = CourseLayout(shape: .windwardLeeward, start: .midCourse, finish: .starboardOfStartFlag,
                                                              wind: .markAndOffset, lee: .gate)
     
     /// A windward-leeward course with separate start and finish lines mid-course, a windward offset, and a leeward gate.
-    public static let windwardLeewardFancy = Layout(shape: .windwardLeeward, start: .midCourse, finish: .starboardOfStartFlag,
+    public static let windwardLeewardFancy = CourseLayout(shape: .windwardLeeward, start: .midCourse, finish: .starboardOfStartFlag,
                                                             wind: .markAndOffset, lee: .gate)
     
     /// The Digital N course used in team racing
-    public static let digitalN = Layout(shape: .digitalN, start: .downwind, finish: .upwind,
+    public static let digitalN = CourseLayout(shape: .digitalN, start: .downwind, finish: .upwind,
                                                 wind: .markAndOffset, lee: .markAndOffset)
     
     

@@ -7,11 +7,19 @@
 
 import Foundation
 
-/// CourseState combines a Course with wind history.
+/// CourseState combines a Course with wind history
+/// and a list of user roles. This is the object that is
+/// transmitted to the phone on each update.
+///
+/// The reason for separating the Course from the other
+/// information is that the Course
+/// is saved as part of the undo/redo stack in the CourseStack,
+/// while the wind history and users are not.
 @dynamicMemberLookup
 public struct CourseState: Codable, Sendable {
     public var course: Course
     public var windHistory: [WindInformation] = []
+    public var users: [CourseUser] = []
 
     public init(_ course: Course) {
         self.course = course

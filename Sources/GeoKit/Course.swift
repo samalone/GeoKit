@@ -126,7 +126,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public var marks: [Coordinate] = []
     
     public var weatherStationId: String = WeatherStation.providenceVisibility.id
-    public var layout: Layout {
+    public var layout: CourseLayout {
         didSet {
             if layout.shape == .digitalN {
                 let avg = (distances.upwind + distances.downwind) / 2.0
@@ -145,7 +145,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
         self.layout = .triangleCenterStart
     }
     
-    public init(id: UUID, name: String = "", layout: Layout = .triangleCenterStart) {
+    public init(id: UUID, name: String = "", layout: CourseLayout = .triangleCenterStart) {
         self.id = id
         self.name = name
         self.layout = layout
@@ -155,7 +155,7 @@ public struct Course: Codable, Equatable, Identifiable, Sendable {
     public init(id: String,
                 name: String = "",
                 boatLength: Distance = sunfishBoatLength,
-                layout: Layout = .triangleCenterStart) {
+                layout: CourseLayout = .triangleCenterStart) {
         self.id = UUID(uuidString: id)!
         self.name = name
         self.layout = layout
