@@ -26,15 +26,15 @@ extension Distance {
 public typealias WindSpeed = Double
 
 extension Double {
-    var degreesToRadians: Double { return self * .pi / 180 }
-    var radiansToDegrees: Double { return self * 180 / .pi }
+    public var degreesToRadians: Double { return self * .pi / 180 }
+    public var radiansToDegrees: Double { return self * 180 / .pi }
     
-    var feetToMeters: Double { return self * 0.3048 }
-    var metersToFeet: Double { return self * 3.28084 }
+    public var feetToMeters: Double { return self * 0.3048 }
+    public var metersToFeet: Double { return self * 3.28084 }
     
-    var mphToKnots: Double { return self * 0.8689762419 }
-    var knotsToMph: Double { return self * 1.150779448 }
+    public var mphToKnots: Double { return self * 0.8689762419 }
+    public var knotsToMph: Double { return self * 1.150779448 }
     
-    var mpsToKnots: Double { return self * 1.9438444924 }
-    var knotsToMps: Double { return self * 0.5144444444 }
+    public var mpsToKnots: Double { return self * 1.9438444924 }
+    public var knotsToMps: Double { return self * 0.5144444444 }
 }
