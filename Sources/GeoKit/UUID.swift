@@ -8,5 +8,5 @@
 import Foundation
 
 #if os(Linux)
-    public extension UUID: Sendable {}
+    extension UUID: Sendable {}
 #endif

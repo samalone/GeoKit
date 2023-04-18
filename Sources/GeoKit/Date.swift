@@ -8,5 +8,5 @@
 import Foundation
 
 #if os(Linux)
-    public extension Date: Sendable {}
+    extension Date: Sendable {}
 #endif
