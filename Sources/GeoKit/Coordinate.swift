@@ -48,7 +48,7 @@ import Foundation
 
 #else
 
-    public struct Coordinate: Codable, Equatable {
+    public struct Coordinate: Codable, Equatable, Sendable {
         public var latitude: Double
         public var longitude: Double
         
