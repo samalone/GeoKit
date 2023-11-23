@@ -16,9 +16,9 @@ public typealias Distance = Double
 public extension Distance {
     /// An initial value for course leg distances, if no previous value is available.
     static let defaultCourseLeg: Distance = 200.0
-    
+
     /// The average radius of the Earth in meters
-    static let earthRadius: Distance = 6372797.6
+    static let earthRadius: Distance = 6_372_797.6
     static let earthMetersPerDegree: Distance = earthRadius * pi / 180.0
 }
 
@@ -26,15 +26,15 @@ public extension Distance {
 public typealias WindSpeed = Double
 
 public extension Double {
-    var degreesToRadians: Double { return self * .pi / 180 }
-    var radiansToDegrees: Double { return self * 180 / .pi }
-    
-    var feetToMeters: Double { return self * 0.3048 }
-    var metersToFeet: Double { return self * 3.28084 }
-    
-    var mphToKnots: Double { return self * 0.8689762419 }
-    var knotsToMph: Double { return self * 1.150779448 }
-    
-    var mpsToKnots: Double { return self * 1.9438444924 }
-    var knotsToMps: Double { return self * 0.5144444444 }
+    var degreesToRadians: Double { self * .pi / 180 }
+    var radiansToDegrees: Double { self * 180 / .pi }
+
+    var feetToMeters: Double { self * 0.3048 }
+    var metersToFeet: Double { self * 3.28084 }
+
+    var mphToKnots: Double { self * 0.8689762419 }
+    var knotsToMph: Double { self * 1.150779448 }
+
+    var mpsToKnots: Double { self * 1.9438444924 }
+    var knotsToMps: Double { self * 0.5144444444 }
 }

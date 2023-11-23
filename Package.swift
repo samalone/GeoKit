@@ -13,7 +13,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "GeoKit",
-            targets: ["GeoKit"]),
+            targets: ["GeoKit"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -35,9 +36,11 @@ let package = Package(
                 // builds. See <https://github.com/swift-server/guides/blob/main/docs/building.md#building-for-production> for details.
 //                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
 //                .unsafeFlags(["-symbol-graph-minimum-access-level", "private"], .when(configuration: .debug))
-            ]),
+            ]
+        ),
         .testTarget(
             name: "GeoKitTests",
-            dependencies: ["GeoKit"]),
+            dependencies: ["GeoKit"]
+        ),
     ]
 )

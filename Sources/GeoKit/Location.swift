@@ -1,6 +1,6 @@
 //
 //  Location.swift
-//  
+//
 //
 //  Created by Stuart A. Malone on 2/20/23.
 //
