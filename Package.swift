@@ -21,6 +21,7 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
+        .package(url: "https://github.com/realm/SwiftLint", from: "0.54.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -36,11 +37,13 @@ let package = Package(
                 // builds. See <https://github.com/swift-server/guides/blob/main/docs/building.md#building-for-production> for details.
 //                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
 //                .unsafeFlags(["-symbol-graph-minimum-access-level", "private"], .when(configuration: .debug))
-            ]
+            ],
+            plugins: [.plugin(name: "SwiftLintPlugin", package: "SwiftLint")]
         ),
         .testTarget(
             name: "GeoKitTests",
-            dependencies: ["GeoKit"]
+            dependencies: ["GeoKit"],
+            plugins: [.plugin(name: "SwiftLintPlugin", package: "SwiftLint")]
         ),
     ]
 )
