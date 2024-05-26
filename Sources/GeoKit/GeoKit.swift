@@ -14,6 +14,14 @@ public extension Direction {
     static func degrees(_ value: Double) -> Direction {
         return Measurement(value: value, unit: .degrees)
     }
+    
+    var inDegrees: Double {
+        converted(to: .degrees).value
+    }
+    
+    var inRadians: Double {
+        converted(to: .radians).value
+    }
 }
 
 /// Distance in meters
@@ -31,7 +39,20 @@ public extension Distance {
     static let earthRadius: Distance = .meters(6_372_797.6)
     static let earthMetersPerDegree: Distance = earthRadius * Double.pi / 180.0
     
+    static let zero: Distance = .meters(0)
     static let infinity: Distance = .meters(Double.infinity)
+    
+    static func / (lhs: Distance, rhs: Distance) -> Double {
+        lhs.converted(to: .meters).value / rhs.converted(to: .meters).value
+    }
+    
+    static func * (lhs: Distance, rhs: Double) -> Distance {
+        .meters(lhs.converted(to: .meters).value * rhs)
+    }
+    
+    var inMeters: Double {
+        converted(to: .meters).value
+    }
 }
 
 /// Wind speed in knots

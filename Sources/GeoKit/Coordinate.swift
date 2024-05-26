@@ -85,15 +85,17 @@ extension Coordinate: Location {
         let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
         let bearingInDegrees = atan2(y, x).radiansToDegrees
 
-        return (bearingInDegrees < 0) ? (bearingInDegrees + 360) : bearingInDegrees
+        return (bearingInDegrees < 0)
+            ? Direction(value: bearingInDegrees + 360, unit: .degrees)
+            : Direction(value: bearingInDegrees, unit: .degrees)
     }
 
     /// Return a new coordinate that is a given bearing and distance from the current coordinate.
     public func project(bearing: Direction, distance: Distance) -> Coordinate {
         let lat1 = latitude.degreesToRadians
         let lon1 = longitude.degreesToRadians
-        let distRadians = distance / Distance.earthRadius
-        let bearingRadians = bearing.degreesToRadians
+        let distRadians = distance.converted(to: .meters).value / Distance.earthRadius.value
+        let bearingRadians = bearing.converted(to: .radians).value
 
         let lat2 = asin(sin(lat1) * cos(distRadians) + cos(lat1) * sin(distRadians) * cos(bearingRadians))
 
