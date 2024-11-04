@@ -16,6 +16,16 @@ import Foundation
     public typealias CoordinateRegion = MKCoordinateRegion
     public typealias Degrees = CLLocationDegrees
 
+    extension CoordinateRegion: @retroactive Equatable {
+        public static func == (lhs: CoordinateRegion, rhs: CoordinateRegion) -> Bool {
+            let delta = 0.00001
+            return (abs(lhs.center.latitude - rhs.center.latitude) < delta) &&
+            (abs(lhs.center.longitude - rhs.center.longitude) < delta) &&
+            (abs(lhs.span.latitudeDelta - rhs.span.latitudeDelta) < delta) &&
+            (abs(lhs.span.longitudeDelta - rhs.span.longitudeDelta) < delta)
+        }
+    }
+
 #else
 
     public typealias Degrees = Double
@@ -139,15 +149,5 @@ public extension CoordinateRegion {
 
     mutating func scale(by factor: Double) {
         self = scaled(by: factor)
-    }
-}
-
-extension CoordinateRegion: Equatable {
-    public static func == (lhs: CoordinateRegion, rhs: CoordinateRegion) -> Bool {
-        let delta = 0.00001
-        return (abs(lhs.center.latitude - rhs.center.latitude) < delta) &&
-            (abs(lhs.center.longitude - rhs.center.longitude) < delta) &&
-            (abs(lhs.span.latitudeDelta - rhs.span.latitudeDelta) < delta) &&
-            (abs(lhs.span.longitudeDelta - rhs.span.longitudeDelta) < delta)
     }
 }
