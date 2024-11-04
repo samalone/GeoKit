@@ -32,7 +32,7 @@ import Foundation
         public static let zero = Point(x: 0, y: 0)
     }
 
-    extension Point: Codable, Equatable, Hashable {}
+    extension Point: Codable, Equatable, Hashable, Sendable {}
 
 #endif
 

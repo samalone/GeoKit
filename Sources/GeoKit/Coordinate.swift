@@ -40,7 +40,7 @@ import Foundation
         }
     }
 
-    extension CLLocationCoordinate2D: @retroactive Equatable {
+    extension CLLocationCoordinate2D: Equatable {
         public static func == (_ a: Self, _ b: Self) -> Bool {
             (a.latitude == b.latitude) && (a.longitude == b.longitude)
         }

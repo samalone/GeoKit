@@ -20,7 +20,7 @@ import Foundation
 
     public typealias Degrees = Double
 
-    public struct CoordinateSpan {
+public struct CoordinateSpan: Sendable {
         public init() {
             latitudeDelta = 0
             longitudeDelta = 0
@@ -35,7 +35,7 @@ import Foundation
         public var longitudeDelta: Degrees
     }
 
-    public struct CoordinateRegion {
+public struct CoordinateRegion: Sendable {
         public init(center: Coordinate, span: CoordinateSpan) {
             self.center = center
             self.span = CoordinateSpan(latitudeDelta: abs(span.latitudeDelta),
@@ -142,7 +142,7 @@ public extension CoordinateRegion {
     }
 }
 
-extension CoordinateRegion: @retroactive Equatable {
+extension CoordinateRegion: Equatable {
     public static func == (lhs: CoordinateRegion, rhs: CoordinateRegion) -> Bool {
         let delta = 0.00001
         return (abs(lhs.center.latitude - rhs.center.latitude) < delta) &&

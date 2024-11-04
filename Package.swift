@@ -21,6 +21,11 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
+        
+        // We have to avoid using newer versions of swift-nio-http2 because they
+        // don't build on Linux
+        .package(url: "https://github.com/apple/swift-nio-http2.git", .upToNextMinor(from: "1.29.0")),
+        
 //        .package(url: "https://github.com/vapor/jwt-kit.git", exact: "4.13.4")
     ],
     targets: [
@@ -30,6 +35,7 @@ let package = Package(
             name: "GeoKit",
             dependencies: [
                 .product(name: "JWT", package: "jwt"),
+                .product(name: "NIOHTTP2", package: "swift-nio-http2"),
             ],
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency")
