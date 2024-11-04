@@ -1,6 +1,6 @@
 # GeoKit
 
-GeoKit provides a common base library for the course-server and the Isosceles app.
+GeoKit provides a common base library for the course-server and the Proper Course app.
 
 - It defines types that are compatible with Apple's CoreLocation on iOS,
   while defining the same types for Linux.

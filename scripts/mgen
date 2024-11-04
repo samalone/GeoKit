@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Generate the documentation using macOS build tools.
+# This is probably NOT what you want, since the whole point of GeoKit
+# is to create Linux equivalents of macOS types, and these won't be
+# included in the documentation. You should probably use "gen" instead.
+
 # Since GeoKit uses Apple types on macOS, this command will generate
 # incomplete documentation. Use the `gen` command to produce complete
 # docs using Docker.

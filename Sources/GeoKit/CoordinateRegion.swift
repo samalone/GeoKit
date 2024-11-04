@@ -142,7 +142,7 @@ public extension CoordinateRegion {
     }
 }
 
-extension CoordinateRegion: Equatable {
+extension CoordinateRegion: @retroactive Equatable {
     public static func == (lhs: CoordinateRegion, rhs: CoordinateRegion) -> Bool {
         let delta = 0.00001
         return (abs(lhs.center.latitude - rhs.center.latitude) < delta) &&
