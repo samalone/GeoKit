@@ -15,7 +15,9 @@ import Foundation
 
 #else
 
-    public struct Point {
+    /// A structure that represents a point in a two-dimensional coordinate system.
+    /// This structure is compatible with CGPoint on Apple platforms.
+    public struct Point: Codable, Equatable, Hashable, Sendable {
         public init() {
             x = 0
             y = 0
@@ -31,8 +33,6 @@ import Foundation
 
         public static let zero = Point(x: 0, y: 0)
     }
-
-    extension Point: Codable, Equatable, Hashable, Sendable {}
 
 #endif
 

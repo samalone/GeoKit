@@ -28,9 +28,12 @@ import Foundation
 
 #else
 
+    /// An angle in degrees. This may represent an angle, latitude, or longitude.
     public typealias Degrees = Double
 
-public struct CoordinateSpan: Sendable {
+    /// A structure that represents the span of a region on the globe in latitude and longitude.
+    /// This structure is compatible with MKCoordinateSpan on Apple platforms.
+    public struct CoordinateSpan: Sendable {
         public init() {
             latitudeDelta = 0
             longitudeDelta = 0
@@ -45,7 +48,9 @@ public struct CoordinateSpan: Sendable {
         public var longitudeDelta: Degrees
     }
 
-public struct CoordinateRegion: Sendable {
+    /// A structure that represents a region on the globe in latitude and longitude.
+    /// This structure is compatible with MKCoordinateRegion on Apple platforms.
+    public struct CoordinateRegion: Sendable {
         public init(center: Coordinate, span: CoordinateSpan) {
             self.center = center
             self.span = CoordinateSpan(latitudeDelta: abs(span.latitudeDelta),

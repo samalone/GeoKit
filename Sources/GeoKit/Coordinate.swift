@@ -55,6 +55,8 @@ import Foundation
 
 #else
 
+    /// A location on the globe in latitude and longitude.
+    /// This structure is compatible with CLLocationCoordinate2D on Apple platforms.
     public struct Coordinate: Codable, Equatable, Hashable, Sendable {
         public var latitude: Double
         public var longitude: Double
