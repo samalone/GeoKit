@@ -46,9 +46,16 @@ import Foundation
         }
     }
 
+    extension CLLocationCoordinate2D: @retroactive Hashable {
+        public func hash(into hasher: inout Hasher) {
+            latitude.hash(into: &hasher)
+            longitude.hash(into: &hasher)
+        }
+    }
+
 #else
 
-    public struct Coordinate: Codable, Equatable, Sendable {
+    public struct Coordinate: Codable, Equatable, Hashable, Sendable {
         public var latitude: Double
         public var longitude: Double
 

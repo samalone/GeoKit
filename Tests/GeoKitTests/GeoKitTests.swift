@@ -1,33 +1,38 @@
 @testable import GeoKit
-import XCTest
+import Testing
 
-final class GeoKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(Distance.earthRadius, 6_372_797.6)
+extension Double {
+    // Define an approximately-equal operator named ~= on Double,
+    // with a tolerance of 0.01
+    static func ~=(lhs: Double, rhs: Double) -> Bool {
+        return abs(lhs - rhs) < 0.01
     }
+}
 
+struct GeoKitTests {
+    @Test func testExample() {
+        #expect(Distance.earthRadius == 6_372_797.6)
+    }
+    
     func verifyRelationship(from p0: Point, to p1: Point, bearing: Direction, distance: Distance) {
         let reverseBearing = (bearing + 180.0).truncatingRemainder(dividingBy: 360.0)
-
-        XCTAssertEqual(p0.distance(to: p1), distance, accuracy: 0.01)
-        XCTAssertEqual(p1.distance(to: p0), distance, accuracy: 0.01)
-
-        XCTAssertEqual(p0.bearing(to: p1), bearing, accuracy: 0.01)
-        XCTAssertEqual(p1.bearing(to: p0), reverseBearing, accuracy: 0.01)
-
+        
+        #expect(p0.distance(to: p1) ~= distance)
+        #expect(p1.distance(to: p0) ~= distance)
+        
+        #expect(p0.bearing(to: p1) ~= bearing)
+        #expect(p1.bearing(to: p0) ~= reverseBearing)
+        
         let j1 = p0.project(bearing: bearing, distance: distance)
-        XCTAssertEqual(p1.x, j1.x, accuracy: 0.01)
-        XCTAssertEqual(p1.y, j1.y, accuracy: 0.01)
-
+        #expect(p1.x ~= j1.x)
+        #expect(p1.y ~= j1.y)
+        
         let j0 = p1.project(bearing: reverseBearing, distance: distance)
-        XCTAssertEqual(p0.x, j0.x, accuracy: 0.01)
-        XCTAssertEqual(p0.y, j0.y, accuracy: 0.01)
+        #expect(p0.x ~= j0.x)
+        #expect(p0.y ~= j0.y)
     }
-
-    func testPoints() throws {
+    
+    @Test func testPoints() throws {
         let p0 = Point()
         let p1 = Point(x: 0, y: -50)
         let p2 = Point(x: 30, y: -40)
@@ -38,7 +43,7 @@ final class GeoKitTests: XCTestCase {
         let p7 = Point(x: 40, y: 40)
         let p8 = Point(x: 30, y: 40)
         let p9 = Point(x: 0, y: 50)
-
+        
         verifyRelationship(from: p0, to: p1, bearing: 0, distance: 50)
         verifyRelationship(from: p0, to: p2, bearing: 36.87, distance: 50)
         verifyRelationship(from: p0, to: p3, bearing: 45, distance: 56.57)

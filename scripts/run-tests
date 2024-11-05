@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Run our tests on Linux.
+
+docker run -v $(PWD):/src --rm swift:6.0-noble /bin/sh -c 'cd /src; swift test'
