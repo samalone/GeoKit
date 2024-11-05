@@ -1,20 +1,21 @@
 # GeoKit
 
-GeoKit provides a common base library for the course-server and the Proper Course app.
+GeoKit provides Linux implementations of structures from CoreLocation and MapKit,
+Apple's frameworks for location-based services on iOS and macOS.  All structures
+are `Codable` so they can be easily encoded and decoded from JSON.
 
-- It defines types that are compatible with Apple's CoreLocation on iOS,
-  while defining the same types for Linux.
-  - [Distance](https://samalone.github.io/GeoKit/documentation/geokit/distance) in meters
-  - [Direction](https://samalone.github.io/GeoKit/documentation/geokit/direction) in degress from true north
-  - [WindSpeed](https://samalone.github.io/GeoKit/documentation/geokit/windspeed) in knots
-  - [Coordinate](https://samalone.github.io/GeoKit/documentation/geokit/coordinate) as a latitude/longitude pair
-- It extends the Coordinate type with functions to perform geographic calculations
-- It defines the datatypes for exchanging data with the course-server
-  - [WeatherStation](https://samalone.github.io/GeoKit/documentation/geokit/weatherstation)
-  - [WindInformation](https://samalone.github.io/GeoKit/documentation/geokit/windinformation)
-  - [Layout](https://samalone.github.io/GeoKit/documentation/geokit/layout)
-  - [Locus](https://samalone.github.io/GeoKit/documentation/geokit/locus)
-  - [MarkSpec](https://samalone.github.io/GeoKit/documentation/geokit/markspec)
-  - [Course](https://samalone.github.io/GeoKit/documentation/geokit/course)
+| CoreLocation/MapKit    | GeoKit           | Units                   |
+| ---------------------- | ---------------- | ----------------------- |
+| CLLocationDegrees      | Degrees          | degrees                 |
+| CLLocationDirection    | Direction        | degrees from true north |
+| CLLocationDistance     | Distance         | meters                  |
+| CGPoint                | Point            |                         |
+| CLLocationSpeed        | WindSpeed        | knots                   |
+| CLLocationCoordinate2D | Coordinate       |                         |
+| MKCoordinateSpan       | CoordinateSpan   |                         |
+| MKCoordinateRegion     | CoordinateRegion |                         |
+
+GeoKit also provides extensions to these structures
+to perform geographic calculations.
 
 An API reference is available at https://samalone.github.io/GeoKit/documentation/geokit
