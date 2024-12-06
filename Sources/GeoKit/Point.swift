@@ -54,4 +54,38 @@ extension Point: Location {
         let dy = y - to.y
         return sqrt((dx * dx) + (dy * dy))
     }
+
+    public func intersection(bearing: Direction, other: Point, otherBearing: Direction) -> Point? {
+        // Convert bearings from degrees to radians
+        let angle1 = (90.0 - bearing).degreesToRadians
+        let angle2 = (90.0 - otherBearing).degreesToRadians
+
+        // Direction vectors
+        let dir1 = Point(x: cos(angle1), y: sin(angle1))
+        let dir2 = Point(x: cos(angle2), y: sin(angle2))
+
+        // Calculate denominator
+        let denominator = dir1.x * dir2.y - dir1.y * dir2.x
+        if denominator == 0 {
+            // Lines are parallel
+            return nil
+        }
+
+        // Calculate differences
+        let dx = other.x - self.x
+        let dy = other.y - self.y
+
+        // Calculate parameters
+        let t = (dx * dir2.y - dy * dir2.x) / denominator
+
+        // Calculate intersection point
+        let intersectionX = self.x + t * dir1.x
+        let intersectionY = self.y + t * dir1.y
+
+        return Point(x: intersectionX, y: intersectionY)
+    }
+    
+    public func midpoint(to other: Point) -> Point {
+        Point(x: (x + other.x) / 2, y: (y + other.y) / 2)
+    }
 }

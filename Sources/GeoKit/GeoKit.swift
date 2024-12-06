@@ -10,6 +10,17 @@ import Foundation
 /// Compass direction in degrees from true north
 public typealias Direction = Double
 
+/// Compute the angular difference between two directions.
+/// The difference is positive if the second direction is clockwise from the first,
+/// and negative if the second direction is counterclockwise from the first.
+/// The result will be in the range -180.0 to 180.0 degrees.
+public func angularDifference(_ start: Direction, _ end: Direction) -> Direction {
+    let diff = end - start
+    // Since diff can be as negative as -360, add 540 instead of 180 to
+    // ensure the result is always positive
+    return (diff + 540.0).truncatingRemainder(dividingBy: 360.0) - 180.0
+}
+
 /// Distance in meters
 public typealias Distance = Double
 
